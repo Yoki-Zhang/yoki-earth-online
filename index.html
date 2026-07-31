@@ -15,6 +15,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -988,6 +989,19 @@
               <input type="number" id="incomeInput" onchange="saveFinanceSettings()" class="w-full mt-1 px-3 py-2 rounded-xl border border-white bg-white/60 text-sm focus:outline-none" placeholder="0">
             </div>
             <div class="text-xs text-gray-500">累计记账 <span id="finCount" class="font-semibold text-gray-700">0</span> 笔</div>
+            <div class="mt-4 p-4 rounded-2xl bg-sky/30 border border-sky/50">
+              <h4 class="font-semibold text-sm mb-1 flex items-center gap-1">☁️ 云端同步（多设备实时）</h4>
+              <p class="text-xs text-gray-500 mb-2">填入 Supabase 项目 URL 与 anon key，开启后所有设备自动实时同步（照片不跨设备）。</p>
+              <label class="text-xs text-gray-500">Supabase URL</label>
+              <input id="syncUrl" class="w-full mt-1 px-3 py-2 rounded-xl border border-white bg-white/70 text-sm focus:outline-none" placeholder="https://xxxx.supabase.co">
+              <label class="text-xs text-gray-500 mt-2 block">Anon Key</label>
+              <input id="syncKey" class="w-full mt-1 px-3 py-2 rounded-xl border border-white bg-white/70 text-sm focus:outline-none" placeholder="eyJhbGci...">
+              <div class="flex gap-2 mt-3">
+                <button onclick="saveSyncConfig()" class="flex-1 px-3 py-2 rounded-xl bg-sky hover:bg-skyDark text-white text-xs font-semibold">保存并连接</button>
+                <button onclick="manualSyncNow()" class="flex-1 px-3 py-2 rounded-xl bg-white/70 hover:bg-white text-xs font-semibold border border-white">立即同步</button>
+              </div>
+              <div id="syncStatus" class="text-xs mt-2 text-gray-500">未连接</div>
+            </div>
           </div>
         </div>
 
@@ -1631,7 +1645,106 @@
       }
       saveData();
     }
-    function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(data)); }
+    function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(data)); schedulePush(); }
+    function saveDataLocalOnly() { localStorage.setItem(DB_KEY, JSON.stringify(data)); }
+
+    // ================= 云端实时同步 (Supabase) =================
+    const SYNC_CFG_KEY = 'yoki_sync_cfg';
+    const SYNC_ROW_ID = 'global';
+    let supa = null, syncReady = false, syncChannel = null, pushTimer = null, lastPullAt = 0;
+    function getSyncCfg() { try { return JSON.parse(localStorage.getItem(SYNC_CFG_KEY) || 'null'); } catch(e){ return null; } }
+    function setSyncStatus(msg, ok) { const el = document.getElementById('syncStatus'); if (el) { el.textContent = msg; el.style.color = ok === false ? '#E8847A' : (ok ? '#52C41A' : '#888'); } }
+    function buildSyncPayload() {
+      const clone = JSON.parse(JSON.stringify(data));
+      if (Array.isArray(clone.photos)) clone.photos = clone.photos.map(p => ({ ...p, src: '' }));
+      delete clone.geoCache; delete clone.__localDirty;
+      return clone;
+    }
+    function applyRemotePayload(remote) {
+      const localPhotos = data.photos || [];
+      data = remote || {};
+      data.photos = localPhotos;
+      if (!data.user) data.user = { name: 'Yoki', totalLoginDays: 1 };
+      if (!data.finance) data.finance = { month: todayKey().slice(0,7), budget: 0, income: 0, transactions: [] };
+      if (!data.settings) data.settings = {};
+      saveDataLocalOnly();
+      renderAll();
+    }
+    function renderAll() {
+      try { renderAlbums(); } catch(e){}
+      try { renderMoods(); } catch(e){}
+      try { renderHealth(); } catch(e){}
+      try { renderMeals(); } catch(e){}
+      try { renderExercises(); } catch(e){}
+      try { renderWater(); } catch(e){}
+      try { renderSleep(); } catch(e){}
+      try { renderFinance(); } catch(e){}
+      try { renderBrain(); } catch(e){}
+      try { renderReview(); } catch(e){}
+      try { renderOverview(); } catch(e){}
+      try { renderVocab(); } catch(e){}
+    }
+    function initSyncClient() {
+      const cfg = getSyncCfg();
+      if (!cfg || !cfg.url || !cfg.key) { syncReady = false; return; }
+      try {
+        if (typeof supabase === 'undefined') { setSyncStatus('同步库未加载（请联网）', false); return; }
+        supa = supabase.createClient(cfg.url, cfg.key);
+        syncReady = true;
+        setSyncStatus('正在连接云端…');
+        subscribeSync();
+        pullFromCloud(true);
+      } catch(e) { syncReady = false; setSyncStatus('连接失败：' + e.message, false); }
+    }
+    function subscribeSync() {
+      if (!supa) return;
+      syncChannel = supa.channel('yoki-sync-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'yoki_sync', filter: 'id=eq.' + SYNC_ROW_ID }, () => { pullFromCloud(false); })
+        .subscribe();
+    }
+    async function pullFromCloud(force) {
+      if (!supa) return;
+      try {
+        const { data: row, error } = await supa.from('yoki_sync').select('payload, updated_at').eq('id', SYNC_ROW_ID).single();
+        if (error && error.code !== 'PGRST116') { setSyncStatus('拉取失败：' + error.message, false); return; }
+        if (!row || !row.payload) { setSyncStatus('云端暂无数据，正在上传本地…'); pushToCloud(); return; }
+        const remoteTime = new Date(row.updated_at).getTime();
+        if (force || remoteTime > lastPullAt) { applyRemotePayload(row.payload); lastPullAt = Date.now(); setSyncStatus('已与云端同步 ✅', true); }
+      } catch(e) { setSyncStatus('拉取异常：' + e.message, false); }
+    }
+    function schedulePush() {
+      if (!syncReady || !supa) return;
+      clearTimeout(pushTimer);
+      pushTimer = setTimeout(pushToCloud, 800);
+    }
+    async function pushToCloud() {
+      if (!syncReady || !supa) return;
+      try {
+        const payload = buildSyncPayload();
+        const { error } = await supa.from('yoki_sync').upsert({ id: SYNC_ROW_ID, payload, updated_at: new Date().toISOString() });
+        if (error) { setSyncStatus('上传失败：' + error.message, false); return; }
+        lastPullAt = Date.now();
+        setSyncStatus('已同步到云端 ☁️', true);
+      } catch(e) { setSyncStatus('上传异常：' + e.message, false); }
+    }
+    function manualSyncNow() {
+      if (!syncReady) { setSyncStatus('请先保存 Supabase 配置', false); return; }
+      pullFromCloud(true).then(() => pushToCloud());
+    }
+    function saveSyncConfig() {
+      const url = (document.getElementById('syncUrl').value || '').trim();
+      const key = (document.getElementById('syncKey').value || '').trim();
+      if (!url || !key) { setSyncStatus('请填写 URL 和 Key', false); return; }
+      localStorage.setItem(SYNC_CFG_KEY, JSON.stringify({ url, key }));
+      initSyncClient();
+    }
+    function renderSyncSettings() {
+      const cfg = getSyncCfg();
+      if (!cfg) return;
+      const u = document.getElementById('syncUrl'), k = document.getElementById('syncKey');
+      if (u && !u.value) u.value = cfg.url;
+      if (k && !k.value) k.value = cfg.key;
+    }
 
     // ================= 导航与布局 =================
     function showSection(section) {
@@ -2712,6 +2825,7 @@
       const tabs = ['home', 'bill', 'mine'];
       document.querySelectorAll('.finance-tab-item').forEach((el, i) => el.classList.toggle('active', tabs[i] === tab));
       if (tab === 'home') renderFinHomeCharts();
+      if (tab === 'mine') renderSyncSettings();
     }
     function saveFinanceSettings() {
       data.finance.budget = parseFloat(document.getElementById('budgetInput').value) || 0;
@@ -3819,6 +3933,7 @@
     // ================= 启动 =================
     function init() {
       loadData();
+      initSyncClient();
       initHeader();
       initSidebar();
       renderAlbums();
