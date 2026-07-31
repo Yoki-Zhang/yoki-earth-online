@@ -1589,6 +1589,7 @@
       const base = {
         user: { name: 'Yoki', totalLoginDays: 1 },
         lastLoginDate: today,
+        loginDates: {},
         photos: [], categories: [], moods: [], health: {}, weights: [],
         meals: {}, exercises: [], exerciseLog: {}, calorieGoal: 1800,
         water: {}, sleep: {},
@@ -1600,9 +1601,16 @@
       if (raw) {
         try {
           data = Object.assign({}, base, JSON.parse(raw));
-          if (data.lastLoginDate !== today) {
-            data.user.totalLoginDays = (data.user.totalLoginDays || 0) + 1;
-            data.lastLoginDate = today;
+          if (!data.loginDates) {
+            data.loginDates = {};
+            const start = data.startDate || today;
+            const last = data.lastLoginDate || today;
+            const cur = new Date(parseInt(start.slice(0,4)), parseInt(start.slice(5,7))-1, parseInt(start.slice(8,10)));
+            const stop = new Date(parseInt(last.slice(0,4)), parseInt(last.slice(5,7))-1, parseInt(last.slice(8,10)));
+            while (cur <= stop) {
+              data.loginDates[`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`] = true;
+              cur.setDate(cur.getDate() + 1);
+            }
           }
           if (!data.health[today]) data.health[today] = { water:false, meals:false, exercise:false, sleep:false };
           if (!data.brain[today]) data.brain[today] = { words:0, podcast:0, rewarded:false };
@@ -1645,6 +1653,17 @@
       }
       saveData();
     }
+    let loginDayPending = true;
+    function incrementLoginDay() {
+      if (!loginDayPending) return;
+      loginDayPending = false;
+      const today = todayKey();
+      if (!data.loginDates) data.loginDates = {};
+      data.loginDates[today] = true;
+      data.user.totalLoginDays = Object.keys(data.loginDates).length;
+      data.lastLoginDate = today;
+      saveData();
+    }
     function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(data)); schedulePush(); }
     function saveDataLocalOnly() { localStorage.setItem(DB_KEY, JSON.stringify(data)); }
 
@@ -1662,8 +1681,10 @@
     }
     function applyRemotePayload(remote) {
       const localPhotos = data.photos || [];
+      const localLoginDates = data.loginDates || {};
       data = remote || {};
       data.photos = localPhotos;
+      data.loginDates = { ...(data.loginDates || {}), ...localLoginDates };
       if (!data.user) data.user = { name: 'Yoki', totalLoginDays: 1 };
       if (!data.finance) data.finance = { month: todayKey().slice(0,7), budget: 0, income: 0, transactions: [] };
       if (!data.settings) data.settings = {};
@@ -1709,7 +1730,7 @@
         if (error && error.code !== 'PGRST116') { setSyncStatus('拉取失败：' + error.message, false); return; }
         if (!row || !row.payload) { setSyncStatus('云端暂无数据，正在上传本地…'); pushToCloud(); return; }
         const remoteTime = new Date(row.updated_at).getTime();
-        if (force || remoteTime > lastPullAt) { applyRemotePayload(row.payload); lastPullAt = Date.now(); setSyncStatus('已与云端同步 ✅', true); }
+        if (force || remoteTime > lastPullAt) { applyRemotePayload(row.payload); lastPullAt = Date.now(); setSyncStatus('已与云端同步 ✅', true); if (loginDayPending) incrementLoginDay(); }
       } catch(e) { setSyncStatus('拉取异常：' + e.message, false); }
     }
     function schedulePush() {
@@ -3933,7 +3954,14 @@
     // ================= 启动 =================
     function init() {
       loadData();
-      initSyncClient();
+      loginDayPending = true;
+      const cfg = getSyncCfg();
+      if (!cfg || !cfg.url || !cfg.key) {
+        incrementLoginDay();
+      } else {
+        initSyncClient();
+        setTimeout(() => { if (loginDayPending) incrementLoginDay(); }, 5000);
+      }
       initHeader();
       initSidebar();
       renderAlbums();
