@@ -598,33 +598,55 @@
                   <div class="pet-bubble" id="petBubble">今天也要好好照顾自己哦~</div>
                   <div class="pet-body-wrap relative">
                     <svg width="130" height="150" viewBox="0 0 130 150">
-                      <ellipse cx="65" cy="125" rx="32" ry="22" fill="#D4F0E0"/>
-                      <circle cx="65" cy="72" r="48" fill="#FFE8D6"/>
-                      <ellipse cx="38" cy="82" rx="9" ry="5" fill="#FFB7C5" opacity="0.6"/>
-                      <ellipse cx="92" cy="82" rx="9" ry="5" fill="#FFB7C5" opacity="0.6"/>
+                      <!-- 底座 -->
+                      <ellipse cx="65" cy="132" rx="36" ry="12" fill="#D4F0E0"/>
+                      <!-- 小身体+蓝色背带裤 -->
+                      <path d="M52 112 L50 136 Q65 142 80 136 L78 112 Q65 116 52 112" fill="#9FC5E8"/>
+                      <rect x="55" y="118" width="7" height="16" rx="2" fill="#7DA9D6"/>
+                      <rect x="68" y="118" width="7" height="16" rx="2" fill="#7DA9D6"/>
+                      <!-- 大耳朵 -->
+                      <ellipse cx="22" cy="72" rx="13" ry="20" fill="#A8C8EC" transform="rotate(-12 22 72)"/>
+                      <ellipse cx="108" cy="72" rx="13" ry="20" fill="#A8C8EC" transform="rotate(12 108 72)"/>
+                      <ellipse cx="25" cy="74" rx="7" ry="12" fill="#C5DCF5" transform="rotate(-12 25 74)"/>
+                      <ellipse cx="105" cy="74" rx="7" ry="12" fill="#C5DCF5" transform="rotate(12 105 74)"/>
+                      <!-- 大头 -->
+                      <circle cx="65" cy="76" r="45" fill="#F8EAD8"/>
+                      <!-- 头发 -->
+                      <path d="M22 58 Q18 35 35 28 Q50 16 65 19 Q85 16 100 28 Q114 38 108 58 Q95 43 65 43 Q38 43 22 58" fill="#FCE8C8"/>
+                      <path d="M32 48 Q47 39 65 41 Q87 39 98 50 Q84 48 65 50 Q47 48 32 48" fill="#FADCB0"/>
+                      <!-- 厨师帽 -->
+                      <path d="M46 22 L46 11 Q46 4 55 4 L75 4 Q84 4 84 11 L84 22 Q75 18 65 18 Q55 18 46 22" fill="white" stroke="#E8E8E8" stroke-width="1"/>
+                      <path d="M43 22 Q65 16 87 22 L87 27 Q65 21 43 27 Z" fill="white" stroke="#E8E8E8" stroke-width="1"/>
+                      <!-- 腮红 -->
+                      <ellipse cx="38" cy="90" rx="8" ry="5" fill="#FFB7C5" opacity="0.6"/>
+                      <ellipse cx="92" cy="90" rx="8" ry="5" fill="#FFB7C5" opacity="0.6"/>
+                      <!-- 默认眼睛：超大黑眼 -->
                       <g class="eye-default">
-                        <circle cx="48" cy="68" r="7" fill="#4A3B32"/>
-                        <circle cx="82" cy="68" r="7" fill="#4A3B32"/>
-                        <circle cx="50" cy="66" r="2.5" fill="white"/>
-                        <circle cx="84" cy="66" r="2.5" fill="white"/>
+                        <ellipse cx="48" cy="74" rx="11" ry="13" fill="#3D3028"/>
+                        <ellipse cx="82" cy="74" rx="11" ry="13" fill="#3D3028"/>
+                        <circle cx="52" cy="69" r="4" fill="white"/>
+                        <circle cx="86" cy="69" r="4" fill="white"/>
+                        <circle cx="45" cy="78" r="2" fill="white" opacity="0.7"/>
+                        <circle cx="79" cy="78" r="2" fill="white" opacity="0.7"/>
                       </g>
+                      <!-- 开心眼睛 -->
                       <g class="eye-happy">
-                        <path d="M42 68 Q48 62 54 68" stroke="#4A3B32" stroke-width="3" fill="none" stroke-linecap="round"/>
-                        <path d="M76 68 Q82 62 88 68" stroke="#4A3B32" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <path d="M38 76 Q48 66 58 76" stroke="#3D3028" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                        <path d="M72 76 Q82 66 92 76" stroke="#3D3028" stroke-width="3.5" fill="none" stroke-linecap="round"/>
                       </g>
+                      <!-- 难过眼睛 -->
                       <g class="eye-sad">
-                        <circle cx="48" cy="70" r="7" fill="#4A3B32"/>
-                        <circle cx="82" cy="70" r="7" fill="#4A3B32"/>
-                        <path d="M42 60 Q48 55 54 60" stroke="#4A3B32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                        <path d="M76 60 Q82 55 88 60" stroke="#4A3B32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                        <circle cx="50" cy="68" r="2.5" fill="white"/>
-                        <circle cx="84" cy="68" r="2.5" fill="white"/>
+                        <ellipse cx="48" cy="76" rx="10" ry="12" fill="#3D3028"/>
+                        <ellipse cx="82" cy="76" rx="10" ry="12" fill="#3D3028"/>
+                        <path d="M40 64 Q48 60 56 64" stroke="#3D3028" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                        <path d="M74 64 Q82 60 90 64" stroke="#3D3028" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                        <circle cx="52" cy="72" r="3.5" fill="white"/>
+                        <circle cx="86" cy="72" r="3.5" fill="white"/>
                       </g>
-                      <path class="mouth-default" d="M58 88 Q65 93 72 88" stroke="#4A3B32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                      <path class="mouth-happy" d="M55 86 Q65 98 75 86" stroke="#4A3B32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                      <path class="mouth-sad" d="M58 92 Q65 86 72 92" stroke="#4A3B32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                      <path d="M25 45 Q35 15 65 20 Q95 15 105 45 Q90 35 65 38 Q40 35 25 45" fill="#B8D9FF"/>
-                      <ellipse cx="65" cy="45" rx="42" ry="8" fill="#D6E8FF"/>
+                      <!-- 嘴巴 -->
+                      <path class="mouth-default" d="M60 100 Q65 104 70 100" stroke="#3D3028" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                      <path class="mouth-happy" d="M57 98 Q65 108 73 98" stroke="#3D3028" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                      <path class="mouth-sad" d="M60 104 Q65 100 70 104" stroke="#3D3028" stroke-width="2.5" fill="none" stroke-linecap="round"/>
                     </svg>
                   </div>
                 </div>
@@ -1276,6 +1298,48 @@
     </div>
   </div>
 
+  <!-- 按板块重置 Modal -->
+  <div id="resetModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='resetModal')closeResetModal()">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cute text-lg text-gray-700">🔄 重置数据</h3>
+        <button onclick="closeResetModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+      </div>
+      <p class="text-xs text-gray-500 mb-3">勾选要重置的板块，确认后数据不可恢复：</p>
+      <div class="space-y-2 mb-4">
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-mint/10 cursor-pointer hover:bg-mint/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="health">
+          <span class="text-sm text-gray-700">💪 流汗 KPI（饮水、三餐、运动、睡眠、体重）</span>
+        </label>
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-amber/10 cursor-pointer hover:bg-amber/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="brain">
+          <span class="text-sm text-gray-700">🧠 脑力小作坊（背单词、播客、奖励金）</span>
+        </label>
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-pink/10 cursor-pointer hover:bg-pink/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="mood">
+          <span class="text-sm text-gray-700">🌈 心情日记</span>
+        </label>
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-sky/10 cursor-pointer hover:bg-sky/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="cloud">
+          <span class="text-sm text-gray-700">☁️ 云朵充电站（语录、收藏）</span>
+        </label>
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-purple/10 cursor-pointer hover:bg-purple/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="album">
+          <span class="text-sm text-gray-700">🎞️ 胶卷盲盒（照片、相册）</span>
+        </label>
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-green/10 cursor-pointer hover:bg-green/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="finance">
+          <span class="text-sm text-gray-700">🐷 小猪记账（账单、预算、收入）</span>
+        </label>
+      </div>
+      <div class="flex gap-2 mb-3">
+        <button onclick="selectAllReset(true)" class="flex-1 py-2 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-sm transition">全选</button>
+        <button onclick="selectAllReset(false)" class="flex-1 py-2 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-sm transition">全不选</button>
+      </div>
+      <button onclick="confirmResetModules()" class="w-full py-2.5 rounded-2xl bg-red-300 hover:bg-red-400 text-white font-semibold transition">确认重置</button>
+    </div>
+  </div>
+
   <script>
     const DB_KEY = 'yoki-earth-online-v1';
     const MOOD_TAGS = {
@@ -1570,6 +1634,8 @@
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
+    // 新一轮起始日：该日及之后，除小猪记账外的所有板块重置，登录天数从第 1 天重新算
+    const RESET_DATE = '2026-08-01';
     function formatDate(ts) {
       const d = new Date(ts);
       return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
@@ -1664,6 +1730,42 @@
       data.lastLoginDate = today;
       saveData();
     }
+    let afterSyncReadyDone = false;
+    function maybeResetForNewCycle() {
+      const today = todayKey();
+      if (today < RESET_DATE) return;
+      if (data.resetDoneFor === RESET_DATE) return;
+      const keepFinance = data.finance || { month: RESET_DATE.slice(0,7), budget: 0, income: 0, transactions: [] };
+      const keepName = (data.user && data.user.name) || 'Yoki';
+      const keepVocabLang = data.vocabLang || 'en';
+      const keepSettings = data.settings || {};
+      data = {
+        user: { name: keepName, totalLoginDays: 1 },
+        lastLoginDate: today,
+        loginDates: { [today]: true },
+        photos: [], categories: [], moods: [], health: {}, weights: [],
+        meals: {}, exercises: [], exerciseLog: {}, calorieGoal: 1800,
+        water: {}, sleep: {},
+        finance: keepFinance,
+        startDate: today,
+        cloud: {}, cloudLikes: [], cloudCustom: [], brain: {}, rewardBalance: 0, rewardHistory: [], review: {}, geoCache: {},
+        vocabLang: keepVocabLang, vocabCursorEn: 0, vocabCursorFr: 0, vocabStats: {}, vocabDaily: {},
+        settings: keepSettings,
+        resetDoneFor: RESET_DATE
+      };
+      data.health[today] = { water:false, meals:false, exercise:false, sleep:false };
+      data.brain[today] = { words:0, podcast:0, rewarded:false, vocabDone:false };
+      data.cloud[today] = { state:null, quote:null };
+      data.meals[today] = { breakfast: null, lunch: null, dinner: null };
+      data.exerciseLog[today] = [];
+      saveData();
+    }
+    function afterSyncReady() {
+      if (afterSyncReadyDone) return;
+      afterSyncReadyDone = true;
+      maybeResetForNewCycle();
+      if (loginDayPending) incrementLoginDay();
+    }
     function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(data)); schedulePush(); }
     function saveDataLocalOnly() { localStorage.setItem(DB_KEY, JSON.stringify(data)); }
 
@@ -1730,7 +1832,7 @@
         if (error && error.code !== 'PGRST116') { setSyncStatus('拉取失败：' + error.message, false); return; }
         if (!row || !row.payload) { setSyncStatus('云端暂无数据，正在上传本地…'); pushToCloud(); return; }
         const remoteTime = new Date(row.updated_at).getTime();
-        if (force || remoteTime > lastPullAt) { applyRemotePayload(row.payload); lastPullAt = Date.now(); setSyncStatus('已与云端同步 ✅', true); if (loginDayPending) incrementLoginDay(); }
+        if (force || remoteTime > lastPullAt) { applyRemotePayload(row.payload); lastPullAt = Date.now(); setSyncStatus('已与云端同步 ✅', true); if (loginDayPending) afterSyncReady(); }
       } catch(e) { setSyncStatus('拉取异常：' + e.message, false); }
     }
     function schedulePush() {
@@ -2748,6 +2850,39 @@
       document.getElementById('waterCustom').value = '';
       addWater(v);
     }
+    function startEditWater(idx) {
+      const w = getTodayWater();
+      const r = w.records[idx];
+      if (!r) return;
+      const row = document.querySelector(`#waterTimeline > div[data-idx="${idx}"]`);
+      if (!row) return;
+      row.querySelector('.water-ml-text').classList.add('hidden');
+      row.querySelector('.water-btn-edit').classList.add('hidden');
+      row.querySelector('.water-btn-save').classList.remove('hidden');
+      const input = row.querySelector('input[type="number"]');
+      input.classList.remove('hidden');
+      input.value = r.ml;
+      input.focus();
+    }
+    function saveEditWater(idx) {
+      const w = getTodayWater();
+      const r = w.records[idx];
+      if (!r) return;
+      const row = document.querySelector(`#waterTimeline > div[data-idx="${idx}"]`);
+      if (!row) return;
+      const input = row.querySelector('input[type="number"]');
+      const v = parseInt(input.value) || 0;
+      if (v <= 0) { alert('请输入大于 0 的毫升数'); return; }
+      r.ml = v;
+      saveData(); renderWater(); renderHealth(); renderOverview(); renderSidebarOverview();
+    }
+    function deleteWaterRecord(idx) {
+      const w = getTodayWater();
+      if (!w.records[idx]) return;
+      if (!confirm('确定删除这条饮水记录吗？')) return;
+      w.records.splice(idx, 1);
+      saveData(); renderWater(); renderHealth(); renderOverview(); renderSidebarOverview();
+    }
     function renderWater() {
       const w = getTodayWater();
       const goal = w.goal || 2000;
@@ -2764,8 +2899,22 @@
       document.getElementById('waterRemainText').textContent = pct >= 100 ? '今日饮水达标，棒棒哒 💧' : `还差 ${Math.max(0, goal - total)} ml 达标`;
       const tl = document.getElementById('waterTimeline');
       const recs = (w.records || []).slice().reverse();
+      const totalRecords = (w.records || []).length;
       if (!recs.length) tl.innerHTML = '<div class="text-center text-gray-400 text-xs py-2">今天还没喝水记录哦</div>';
-      else tl.innerHTML = recs.map(r => `<div class="flex items-center justify-between bg-white/50 px-3 py-1.5 rounded-xl border border-white text-sm"><span class="text-gray-400">${r.time}</span><span class="font-semibold text-gray-700">${r.ml} ml</span></div>`).join('');
+      else tl.innerHTML = recs.map((r, idx) => {
+        const originalIdx = totalRecords - 1 - idx;
+        const inputId = 'waterEditMl_' + originalIdx;
+        return `<div class="flex items-center justify-between bg-white/50 px-3 py-1.5 rounded-xl border border-white text-sm" data-idx="${originalIdx}">
+          <span class="text-gray-400">${r.time}</span>
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-gray-700 water-ml-text">${r.ml} ml</span>
+            <input type="number" id="${inputId}" class="hidden w-20 px-2 py-1 rounded-lg border border-sky bg-white/80 text-sm text-center" value="${r.ml}" onkeydown="if(event.key==='Enter') saveEditWater(${originalIdx})">
+            <button onclick="startEditWater(${originalIdx})" class="water-btn-edit text-sky hover:text-skyDark text-xs px-1" title="编辑">✏️</button>
+            <button onclick="saveEditWater(${originalIdx})" class="water-btn-save hidden text-green-500 hover:text-green-600 text-xs px-1 font-bold" title="保存">✓</button>
+            <button onclick="deleteWaterRecord(${originalIdx})" class="text-gray-400 hover:text-red-400 text-xs px-1" title="删除">🗑️</button>
+          </div>
+        </div>`;
+      }).join('');
       const today = todayKey();
       const dates = [];
       for (let i = 6; i >= 0; i--) {
@@ -3924,8 +4073,45 @@
       input.value = '';
     }
     function resetData() {
-      if (!confirm('确定要清空所有数据吗？此操作不可恢复！')) return;
-      localStorage.removeItem(DB_KEY); localStorage.removeItem('yoki-active-section'); location.reload();
+      document.querySelectorAll('.reset-module-check').forEach(cb => cb.checked = false);
+      document.getElementById('resetModal').classList.remove('hidden');
+    }
+    function closeResetModal() { document.getElementById('resetModal').classList.add('hidden'); }
+    function selectAllReset(checked) { document.querySelectorAll('.reset-module-check').forEach(cb => cb.checked = checked); }
+    function confirmResetModules() {
+      const checked = Array.from(document.querySelectorAll('.reset-module-check:checked')).map(cb => cb.value);
+      if (!checked.length) { alert('请至少选择一个要重置的板块'); return; }
+      const names = { health: '流汗 KPI', brain: '脑力小作坊', mood: '心情日记', cloud: '云朵充电站', album: '胶卷盲盒', finance: '小猪记账' };
+      if (!confirm('确定要重置以下板块吗？数据不可恢复！\n\n' + checked.map(v => '· ' + names[v]).join('\n'))) return;
+      checked.forEach(resetModule);
+      saveData(); closeResetModal(); renderAll(); showToast('已重置选中板块');
+    }
+    function resetModule(module) {
+      const today = todayKey();
+      switch(module) {
+        case 'health':
+          data.health = {}; data.health[today] = { water:false, meals:false, exercise:false, sleep:false };
+          data.weights = []; data.water = {}; data.sleep = {}; data.meals = {}; data.exerciseLog = {};
+          break;
+        case 'brain':
+          data.brain = {}; data.brain[today] = { words:0, podcast:0, rewarded:false, vocabDone:false };
+          data.rewardBalance = 0; data.rewardHistory = []; data.review = {};
+          data.vocabStats = {}; data.vocabDaily = {}; data.vocabCursorEn = 0; data.vocabCursorFr = 0;
+          break;
+        case 'mood':
+          data.moods = [];
+          break;
+        case 'cloud':
+          data.cloud = {}; data.cloudLikes = []; data.cloudCustom = [];
+          data.cloud[today] = { state:null, quote:null };
+          break;
+        case 'album':
+          data.photos = []; data.categories = []; data.geoCache = {};
+          break;
+        case 'finance':
+          data.finance = { month: today.slice(0,7), budget: 0, income: 0, transactions: [] };
+          break;
+      }
     }
 
     // ================= Service Worker =================
@@ -3955,12 +4141,13 @@
     function init() {
       loadData();
       loginDayPending = true;
+      afterSyncReadyDone = false;
       const cfg = getSyncCfg();
       if (!cfg || !cfg.url || !cfg.key) {
-        incrementLoginDay();
+        afterSyncReady();
       } else {
         initSyncClient();
-        setTimeout(() => { if (loginDayPending) incrementLoginDay(); }, 5000);
+        setTimeout(afterSyncReady, 5000);
       }
       initHeader();
       initSidebar();
