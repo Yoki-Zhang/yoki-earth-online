@@ -1061,9 +1061,6 @@
           </div>
         </div>
 
-        <!-- 分类标签栏（装饰性，高亮当前语录分类） -->
-        <div id="cloudCats" class="flex gap-2 mb-4 flex-wrap"></div>
-
         <!-- 日期切换栏：左右箭头 + 日期标签 -->
         <div class="flex items-center justify-center gap-4 mb-3">
           <button id="cloudPrev" onclick="cloudStep(-1)" class="btn-bounce w-11 h-11 rounded-full bg-white/70 hover:bg-white text-lg font-bold shadow-sm border border-white transition">◀</button>
@@ -1074,6 +1071,7 @@
         <!-- 语录展示区 -->
         <div id="cloudQuote" class="bg-sky/40 p-8 rounded-2xl border border-white text-center mb-4 min-h-[200px] flex flex-col items-center justify-center">
           <p id="cloudQuoteText" class="text-gray-800 font-medium text-2xl md:text-3xl leading-relaxed mb-3 font-cute"></p>
+          <p id="cloudQuoteTrans" class="text-sm text-gray-500 italic mb-3 hidden"></p>
           <p id="cloudQuoteAuthor" class="text-sm text-gray-500 italic mb-4"></p>
           <div id="cloudQuoteMeta" class="text-xs text-gray-500 mb-5"></div>
           <button onclick="toggleCloudLike()" id="cloudLikeBtn" class="btn-bounce px-5 py-2 rounded-2xl bg-white/70 hover:bg-white text-sm font-semibold shadow-sm border border-white">🤍 收藏</button>
@@ -1346,249 +1344,114 @@
       '😄开心': '#FEF3C7', '😌平静': '#D1FAE5', '😢难过': '#DBEAFE',
       '😤愤怒': '#FEE2E2', '🥱疲惫': '#F3E8FF'
     };
-    // 文学语录库（≥80条，4个分类各≥20条，均附作者出处）
-    // ============ 云朵充电站：文学语录库（220 条，按日期顺序每日一句） ============
-    const CLOUD_QUOTE_CATS = {
-      '治愈': [
-        { text: '且将新火试新茶，诗酒趁年华。', author: '苏轼' },
-        { text: '采菊东篱下，悠然见南山。', author: '陶渊明' },
-        { text: '行到水穷处，坐看云起时。', author: '王维' },
-        { text: '天意怜幽草，人间重晚晴。', author: '李商隐' },
-        { text: '此时情绪此时天，无事小神仙。', author: '周邦彦' },
-        { text: '闲看庭前花开花落，漫随天外云卷云舒。', author: '《菜根谭》' },
-        { text: '小舟从此逝，江海寄余生。', author: '苏轼' },
-        { text: '吹灭读书灯，一身都是月。', author: '佚名' },
-        { text: '你若安好，便是晴天。', author: '佚名' },
-        { text: '愿你出走半生，归来仍是少年。', author: '佚名' },
-        { text: '生活不止眼前的苟且，还有诗和远方。', author: '高晓松' },
-        { text: '慢下来，把日子过成诗。', author: '佚名' },
-        { text: '愿你一生努力，一生被爱。', author: '佚名' },
-        { text: '万物皆有裂痕，那是光照进来的地方。', author: '莱昂纳德·科恩' },
-        { text: '我们终将上岸，阳光万里。', author: '佚名' },
-        { text: '所有的道别里，我最喜欢：明天见。', author: '佚名' },
-        { text: '愿你所得皆所愿，所行化坦途。', author: '佚名' },
-        { text: '把生活调成自己喜欢的频道。', author: '佚名' },
-        { text: '人间烟火气，最抚凡人心。', author: '佚名' },
-        { text: '温柔要有，但不是妥协，我们要在安静中，不慌不忙地坚强。', author: '林徽因' },
-        { text: '凡是过往，皆为序章。', author: '莎士比亚' },
-        { text: '素履之往，其行天下。', author: '《易经》' },
-        { text: '山重水复疑无路，柳暗花明又一村。', author: '陆游' },
-        { text: '不乱于心，不困于情，不畏将来，不念过往。', author: '丰子恺' },
-        { text: '世界以痛吻我，要我报之以歌。', author: '泰戈尔' },
-        { text: '慢慢来，谁还没有一个努力的过程。', author: '佚名' },
-        { text: '无论你昨晚经历了怎样的泣不成声，醒来城市依旧车水马龙。', author: '佚名' },
-        { text: '疲惫的生活里，总要有一些温柔的梦想。', author: '佚名' },
-        { text: '且敬往事一杯酒，愿无岁月可回头。', author: '佚名' },
-        { text: '愿你遍历山河，仍觉人间值得。', author: '佚名' },
-        { text: '生活明朗，万物可爱。', author: '佚名' },
-        { text: '纵有疾风起，人生不言弃。', author: '保罗·瓦雷里' },
-        { text: '把烦心事都丢掉，腾出地方装鲜花。', author: '佚名' },
-        { text: '一愿郎君千岁，二愿妾身常健，三愿如同梁上燕，岁岁常相见。', author: '冯延巳' },
-        { text: '若无闲事挂心头，便是人间好时节。', author: '无门慧开' },
-        { text: '毕竟几人真得鹿，不知终日梦为鱼。', author: '黄庭坚' },
-        { text: '小满即圆满。', author: '佚名' },
-        { text: '晚安，换个世界想你，一会见。', author: '佚名' },
-        { text: '今天的太阳比昨天大，是好事。', author: '佚名' },
-        { text: '风很温柔，花很浪漫，你很特别。', author: '佚名' },
-        { text: '往后的日子，愿你想要的都能拥有。', author: '佚名' },
-        { text: '生活有望穿秋水的等待，也会有意想不到的惊喜。', author: '佚名' },
-        { text: '所有的失去，都会以另一种方式归来。', author: '佚名' },
-        { text: '愿你眼中有光，心中有爱，脚下有路。', author: '佚名' },
-        { text: '别慌，月亮也正在大海某处迷茫。', author: '佚名' },
-        { text: '温柔半两，从容一生。', author: '佚名' },
-        { text: '愿你我都能在鸡零狗碎里找到闪闪发光的快乐。', author: '佚名' },
-        { text: '把身体照顾好，把喜欢的事做好，把重要的人待好。', author: '佚名' },
-        { text: '日子慢些走，让快乐多停留。', author: '佚名' },
-        { text: '万物皆有它的时区，你也是。', author: '佚名' },
-        { text: '云朵偷喝了我的酒，于是它红了脸。', author: '佚名' },
-        { text: '风停在窗台，月光落进怀里。', author: '佚名' },
-        { text: '把日子过成自己喜欢的样子，就是最好的治愈。', author: '佚名' },
-        { text: '只要心是晴的，人生就没有雨天。', author: '佚名' },
-        { text: '愿你精致到老，眼里长着太阳，笑里全是坦荡。', author: '佚名' },
-      ],
-      '励志': [
-        { text: '长风破浪会有时，直挂云帆济沧海。', author: '李白' },
-        { text: '会当凌绝顶，一览众山小。', author: '杜甫' },
-        { text: '路漫漫其修远兮，吾将上下而求索。', author: '屈原' },
-        { text: '宝剑锋从磨砺出，梅花香自苦寒来。', author: '《警世贤文》' },
-        { text: '锲而不舍，金石可镂。', author: '荀子' },
-        { text: '千磨万击还坚劲，任尔东西南北风。', author: '郑燮' },
-        { text: '黑发不知勤学早，白首方悔读书迟。', author: '颜真卿' },
-        { text: '莫等闲，白了少年头，空悲切。', author: '岳飞' },
-        { text: '三军可夺帅也，匹夫不可夺志也。', author: '孔子' },
-        { text: '志之所趋，无远弗届。', author: '《格言联璧》' },
-        { text: '世上无难事，只要肯登攀。', author: '毛泽东' },
-        { text: '业精于勤，荒于嬉。', author: '韩愈' },
-        { text: '穷且益坚，不坠青云之志。', author: '王勃' },
-        { text: '大鹏一日同风起，扶摇直上九万里。', author: '李白' },
-        { text: '古之立大事者，不惟有超世之才，亦必有坚忍不拔之志。', author: '苏轼' },
-        { text: '星星之火，可以燎原。', author: '毛泽东' },
-        { text: '不积跬步，无以至千里。', author: '荀子' },
-        { text: '亦余心之所善兮，虽九死其犹未悔。', author: '屈原' },
-        { text: '精诚所至，金石为开。', author: '《后汉书》' },
-        { text: '逆水行舟，不进则退。', author: '《增广贤文》' },
-        { text: '天行健，君子以自强不息。', author: '《易经》' },
-        { text: '千里之行，始于足下。', author: '老子' },
-        { text: '老骥伏枥，志在千里。', author: '曹操' },
-        { text: '仰天大笑出门去，我辈岂是蓬蒿人。', author: '李白' },
-        { text: '天生我材必有用，千金散尽还复来。', author: '李白' },
-        { text: '黄沙百战穿金甲，不破楼兰终不还。', author: '王昌龄' },
-        { text: '博观而约取，厚积而薄发。', author: '苏轼' },
-        { text: '操千曲而后晓声，观千剑而后识器。', author: '刘勰' },
-        { text: '非淡泊无以明志，非宁静无以致远。', author: '诸葛亮' },
-        { text: '莫愁前路无知己，天下谁人不识君。', author: '高适' },
-        { text: '雄关漫道真如铁，而今迈步从头越。', author: '毛泽东' },
-        { text: '自信人生二百年，会当水击三千里。', author: '毛泽东' },
-        { text: '志合者，不以山海为远。', author: '葛洪' },
-        { text: '骐骥一跃，不能十步；驽马十驾，功在不舍。', author: '荀子' },
-        { text: '当你穿过了暴风雨，你早已不再是原来那个人。', author: '村上春树' },
-        { text: '一个人至少要拥有一个梦想，有一个理由去坚强。', author: '佚名' },
-        { text: '你只管努力，剩下的交给时间。', author: '佚名' },
-        { text: '没有谁的生活会一直完美，但无论什么时候都要看着前方。', author: '宫崎骏' },
-        { text: '种一棵树最好的时间是十年前，其次是现在。', author: '佚名' },
-        { text: '所谓天才，不过是长久的坚持。', author: '佚名' },
-        { text: '别让怯弱否定自己，别让懒惰误了青春。', author: '佚名' },
-        { text: '每天叫醒你的不应该是闹钟，而是心中的梦想。', author: '佚名' },
-        { text: '你若盛开，蝴蝶自来；你若精彩，天自安排。', author: '佚名' },
-        { text: '乾坤未定，你我皆是黑马。', author: '佚名' },
-        { text: '与其担心未来，不如努力现在。', author: '佚名' },
-        { text: '所有的光鲜亮丽，都敌不过时间；所有坚持，都终将美好。', author: '佚名' },
-        { text: '即使没有人为你鼓掌，也要优雅地谢幕。', author: '佚名' },
-        { text: '没有比脚更长的路，没有比人更高的山。', author: '汪国真' },
-        { text: '既然选择了远方，便只顾风雨兼程。', author: '汪国真' },
-        { text: '把每一个平凡的日子，过成限量版。', author: '佚名' },
-        { text: '努力的意义，不在于一定会让你取得多大成就，而是让你在平凡的日子里，活得比原来的自己更好一点。', author: '佚名' },
-        { text: '你现在所有的努力，都是在为未来积攒底气。', author: '佚名' },
-        { text: '别在该奋斗的年纪选择安逸。', author: '佚名' },
-        { text: '将来的你，一定会感谢现在拼命的自己。', author: '佚名' },
-        { text: '山高路远，独善其身，看世界，爱自己。', author: '佚名' },
-      ],
-      '自由': [
-        { text: '生命诚可贵，爱情价更高。若为自由故，二者皆可抛。', author: '裴多菲' },
-        { text: '不自由，毋宁死。', author: '帕特里克·亨利' },
-        { text: '海阔凭鱼跃，天高任鸟飞。', author: '阮阅' },
-        { text: '久在樊笼里，复得返自然。', author: '陶渊明' },
-        { text: '羁鸟恋旧林，池鱼思故渊。', author: '陶渊明' },
-        { text: '且乐生前一杯酒，何须身后千载名。', author: '李白' },
-        { text: '我劝天公重抖擞，不拘一格降人才。', author: '龚自珍' },
-        { text: '安能摧眉折腰事权贵，使我不得开心颜。', author: '李白' },
-        { text: '自由不是想做什么就做什么，而是不想做什么就可以不做什么。', author: '康德' },
-        { text: '一个人的自由，是以不侵犯他人自由为界限。', author: '孟德斯鸠' },
-        { text: '乘风好去，长空万里，直下看山河。', author: '辛弃疾' },
-        { text: '心似已灰之木，身如不系之舟。', author: '苏轼' },
-        { text: '莫听穿林打叶声，何妨吟啸且徐行。', author: '苏轼' },
-        { text: '不管风吹浪打，胜似闲庭信步。', author: '毛泽东' },
-        { text: '从明天起，做一个幸福的人，喂马，劈柴，周游世界。', author: '海子' },
-        { text: '我只愿面朝大海，春暖花开。', author: '海子' },
-        { text: '你可以是野草，也可以是树，只要是自己。', author: '佚名' },
-        { text: '人生如逆旅，我亦是行人。', author: '苏轼' },
-        { text: '世界那么大，我想去看看。', author: '佚名' },
-        { text: '自由之风劲吹。', author: '斯坦福校训' },
-        { text: '不识庐山真面目，只缘身在此山中。', author: '苏轼' },
-        { text: '解落三秋叶，能开二月花。', author: '李峤' },
-        { text: '飘飘何所似，天地一沙鸥。', author: '杜甫' },
-        { text: '白发渔樵江渚上，惯看秋月春风。', author: '杨慎' },
-        { text: '我与我周旋久，宁作我。', author: '《世说新语》' },
-        { text: '举世皆浊我独清，众人皆醉我独醒。', author: '屈原' },
-        { text: '沧浪之水清兮，可以濯吾缨。', author: '屈原' },
-        { text: '鹏之徙于南冥也，水击三千里。', author: '庄子' },
-        { text: '至人无己，神人无功，圣人无名。', author: '庄子' },
-        { text: '相濡以沫，不如相忘于江湖。', author: '庄子' },
-        { text: '人生得意须尽欢，莫使金樽空对月。', author: '李白' },
-        { text: '且放白鹿青崖间，须行即骑访名山。', author: '李白' },
-        { text: '自由是为了能做自己，而不是为了逃避责任。', author: '佚名' },
-        { text: '我手写我心。', author: '佚名' },
-        { text: '不被定义，才是真正的自由。', author: '佚名' },
-        { text: '你可以是一朵花，也可以是一阵风。', author: '佚名' },
-        { text: '我的灵魂像风，不愿被任何人收编。', author: '佚名' },
-        { text: '想走就走吧，天涯海角都算故乡。', author: '佚名' },
-        { text: '把自由还给自己，把温柔留给值得的人。', author: '佚名' },
-        { text: '不被理解的弱小，只好一直坚强。', author: '佚名' },
-        { text: '不想被安排的人生，才值得过。', author: '佚名' },
-        { text: '阳光下，我们都是自由的。', author: '佚名' },
-        { text: '别让任何人替你决定你是谁。', author: '佚名' },
-        { text: '自由不是放纵，而是清醒地做自己。', author: '佚名' },
-        { text: '心若没有栖息的地方，到哪里都是流浪。', author: '三毛' },
-        { text: '如果有来生，要做一棵树，站成永恒，没有悲欢的姿势。', author: '三毛' },
-        { text: '岁月极美，在于它必然的流逝。春花、秋月、夏日、冬雪。', author: '三毛' },
-        { text: '井底之蛙，也会拥有属于它的一片天。', author: '佚名' },
-        { text: '趁年轻，去想去的地方，见想见的人。', author: '佚名' },
-        { text: '远方不远，步履不停。', author: '佚名' },
-        { text: '你不必借光而行，你我亦是星辰。', author: '佚名' },
-        { text: '风可以吹起一张白纸，却无法吹走一只蝴蝶。', author: '冯骥才' },
-        { text: '真正的自由，是能对自己说不必。', author: '佚名' },
-        { text: '去更远的地方，见更亮的光。', author: '佚名' },
-        { text: '把名字写在水上的人，不会被遗忘。', author: '济慈' },
-      ],
-      '孤独': [
-        { text: '孤舟蓑笠翁，独钓寒江雪。', author: '柳宗元' },
-        { text: '举杯邀明月，对影成三人。', author: '李白' },
-        { text: '冠盖满京华，斯人独憔悴。', author: '杜甫' },
-        { text: '无言独上西楼，月如钩。', author: '李煜' },
-        { text: '寂寞梧桐深院锁清秋。', author: '李煜' },
-        { text: '无可奈何花落去，似曾相识燕归来。', author: '晏殊' },
-        { text: '寻寻觅觅，冷冷清清，凄凄惨惨戚戚。', author: '李清照' },
-        { text: '众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。', author: '辛弃疾' },
-        { text: '此情可待成追忆，只是当时已惘然。', author: '李商隐' },
-        { text: '人生若只如初见，何事秋风悲画扇。', author: '纳兰性德' },
-        { text: '你走，我不送你；你来，无论多大风多大雨，我要去接你。', author: '梁实秋' },
-        { text: '后来啊，乡愁是一方矮矮的坟墓，我在外头，母亲在里头。', author: '余光中' },
-        { text: '我们都是孤独的刺猬，只有频率相同的人才能看到彼此。', author: '妙莉叶·芭贝里' },
-        { text: '每个人都像月亮，不愿让人看到背面的暗面。', author: '马克·吐温' },
-        { text: '孤独是一个人的狂欢，狂欢是一群人的孤独。', author: '佚名' },
-        { text: '一个人只拥有此生此世是不够的，他还应该拥有诗意的世界。', author: '王小波' },
-        { text: '我们笑着说再见，却深知再见遥遥无期。', author: '卡勒德·胡赛尼' },
-        { text: '所有的大人都曾经是小孩，虽然，只有少数的人记得。', author: '圣埃克苏佩里' },
-        { text: '成长是一笔交易，我们用朴素的童真交换长大的勇气。', author: '佚名' },
-        { text: '一个人最好的状态，是安静而丰盈。', author: '佚名' },
-        { text: '千里孤坟，无处话凄凉。', author: '苏轼' },
-        { text: '十年生死两茫茫，不思量，自难忘。', author: '苏轼' },
-        { text: '缺月挂疏桐，漏断人初静。', author: '苏轼' },
-        { text: '拣尽寒枝不肯栖，寂寞沙洲冷。', author: '苏轼' },
-        { text: '知音少，弦断有谁听。', author: '岳飞' },
-        { text: '落花人独立，微雨燕双飞。', author: '晏几道' },
-        { text: '桃李春风一杯酒，江湖夜雨十年灯。', author: '黄庭坚' },
-        { text: '此去经年，应是良辰好景虚设。', author: '柳永' },
-        { text: '便纵有千种风情，更与何人说。', author: '柳永' },
-        { text: '当时明月在，曾照彩云归。', author: '晏几道' },
-        { text: '我是人间惆怅客，知君何事泪纵横。', author: '纳兰性德' },
-        { text: '背灯和月就花阴，已是十年踪迹十年心。', author: '纳兰性德' },
-        { text: '孤独之前是迷茫，孤独之后是成长。', author: '佚名' },
-        { text: '孤独是一个人的清欢。', author: '佚名' },
-        { text: '我们生而破碎，用活着来修修补补。', author: '尤金·奥尼尔' },
-        { text: '后来我才知道，那些真正要走的人，关门声最轻。', author: '佚名' },
-        { text: '无人问津的日子里，正是你悄悄变好的时候。', author: '佚名' },
-        { text: '热闹是它们的，我什么也没有。', author: '朱自清' },
-        { text: '你明亮的样子，像一颗星星，却照不亮自己的夜。', author: '佚名' },
-        { text: '我把所有的思念都沉入海底，从此风平浪静。', author: '佚名' },
-        { text: '有些路，只能一个人走。', author: '佚名' },
-        { text: '我们在别人的故事里，流着自己的泪。', author: '佚名' },
-        { text: '孤独不是没人陪，而是没人懂。', author: '佚名' },
-        { text: '愿你有人陪，也习惯一个人。', author: '佚名' },
-        { text: '深夜里，连影子都离我而去。', author: '佚名' },
-        { text: '我把孤独当作一种修行。', author: '佚名' },
-        { text: '每个人心里都有一座孤岛。', author: '佚名' },
-        { text: '所谓成熟，就是习惯孤独。', author: '佚名' },
-        { text: '月亮本就孤独，所以才照亮黑夜。', author: '佚名' },
-        { text: '我喜欢的不是孤独，是清醒的自由。', author: '佚名' },
-        { text: '在最深的夜里，与自己和解。', author: '佚名' },
-        { text: '没有人会一直陪你，所以要习惯一个人走。', author: '佚名' },
-        { text: '孤独是一座花园，里面开满沉默的花。', author: '佚名' },
-        { text: '宁愿独自清醒，也不愿众人皆醉。', author: '佚名' },
-        { text: '后来，我把故事讲给了风听。', author: '佚名' },
-      ],
-    };
-    const QUOTE_LIBRARY = (function () {
-      const order = ['治愈', '励志', '自由', '孤独'];
-      const out = [];
-      const maxLen = Math.max.apply(null, order.map(c => CLOUD_QUOTE_CATS[c].length));
-      for (let i = 0; i < maxLen; i++) {
-        for (const c of order) {
-          if (CLOUD_QUOTE_CATS[c][i]) out.push({ text: CLOUD_QUOTE_CATS[c][i].text, author: CLOUD_QUOTE_CATS[c][i].author, cat: c });
-        }
-      }
-      return out;
-    })();
+    // ============ 云朵充电站：名人文学语录库（100 条，每日一句不重复） ============
+    const QUOTE_LIBRARY = [
+      // 中国文学
+      { text: '真的猛士，敢于直面惨淡的人生，敢于正视淋漓的鲜血。', author: '鲁迅《纪念刘和珍君》', cat: '中国文学' },
+      { text: '因为懂得，所以慈悲。', author: '张爱玲', cat: '中国文学' },
+      { text: '我行过许多地方的桥，看过许多次数的云，喝过许多种类的酒，却只爱过一个正当最好年龄的人。', author: '沈从文《湘行散记》', cat: '中国文学' },
+      { text: '婚姻是一座围城，城外的人想进去，城里的人想出来。', author: '钱钟书《围城》', cat: '中国文学' },
+      { text: '活着本身，就是力量。', author: '余华《活着》', cat: '中国文学' },
+      { text: '人生啊，是这样不可预测，没有永恒的痛苦，也没有永恒的幸福。', author: '路遥《平凡的世界》', cat: '中国文学' },
+      { text: '一个人至少拥有一个梦想，有一个理由去坚强。', author: '三毛', cat: '中国文学' },
+      { text: '人生不过如此，且行且珍惜。', author: '林语堂', cat: '中国文学' },
+      { text: '爱在左，同情在右，走在生命的两旁。', author: '冰心', cat: '中国文学' },
+      { text: '生命的意义在于付出，在于给予。', author: '巴金', cat: '中国文学' },
+      { text: '生活是种律动，须有光有影，有左有右。', author: '老舍', cat: '中国文学' },
+      { text: '一个人只拥有此生此世是不够的，他还应该拥有诗意的世界。', author: '王小波', cat: '中国文学' },
+      { text: '世界上的事情，最忌讳的就是个十全十美。', author: '莫言', cat: '中国文学' },
+      { text: '且视他人之疑目如盏盏鬼火，大胆地去走你的夜路。', author: '史铁生', cat: '中国文学' },
+      { text: '如果你记得我，那我不在乎其他人是否记得。', author: '村上春树《挪威的森林》', cat: '中国文学' },
+      { text: '热闹是它们的，我什么也没有。', author: '朱自清', cat: '中国文学' },
+      { text: '你走，我不送你；你来，无论多大风多大雨，我要去接你。', author: '梁实秋', cat: '中国文学' },
+      { text: '后来啊，乡愁是一方矮矮的坟墓，我在外头，母亲在里头。', author: '余光中', cat: '中国文学' },
+      { text: '卑鄙是卑鄙者的通行证，高尚是高尚者的墓志铭。', author: '北岛', cat: '中国文学' },
+      { text: '黑夜给了我黑色的眼睛，我却用它寻找光明。', author: '顾城', cat: '中国文学' },
+      // 外国文学（中文为主，附原文翻译）
+      { text: '生存还是毁灭，这是一个问题。', trans: 'To be, or not to be, that is the question.', author: '莎士比亚《哈姆雷特》', cat: '外国文学' },
+      { text: '一个人可以被毁灭，但不能被打败。', trans: 'A man can be destroyed but not defeated.', author: '海明威《老人与海》', cat: '外国文学' },
+      { text: '幸福的家庭都是相似的，不幸的家庭各有各的不幸。', trans: 'All happy families are alike; each unhappy family is unhappy in its own way.', author: '托尔斯泰《安娜·卡列尼娜》', cat: '外国文学' },
+      { text: '在隆冬，我终于知道，我身上有一个不可战胜的夏天。', trans: 'In the depth of winter, I finally learned that within me there lay an invincible summer.', author: '加缪', cat: '外国文学' },
+      { text: '如果你因错过太阳而流泪，那么你也将错过群星。', trans: 'If you shed tears when you miss the sun, you also miss the stars.', author: '泰戈尔《飞鸟集》', cat: '外国文学' },
+      { text: '你的孩子，其实不是你的孩子。', trans: 'Your children are not your children.', author: '纪伯伦《先知》', cat: '外国文学' },
+      { text: '生活是世上最罕见的事情，大多数人只是存在，仅此而已。', trans: 'To live is the rarest thing in the world. Most people exist, that is all.', author: '王尔德', cat: '外国文学' },
+      { text: '杀不死我的，必使我更强大。', trans: 'What does not kill me makes me stronger.', author: '尼采', cat: '外国文学' },
+      { text: '世上只有一种英雄主义，就是在认清生活真相之后依然热爱生活。', trans: 'There is only one heroism in the world: to see the world as it is and to love it.', author: '罗曼·罗兰', cat: '外国文学' },
+      { text: '凡是有钱的单身汉，总想娶位太太，这已经成了一条举世公认的真理。', trans: 'It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.', author: '简·奥斯汀《傲慢与偏见》', cat: '外国文学' },
+      { text: '我有根，但我流动。', trans: 'I am rooted, but I flow.', author: '弗吉尼亚·伍尔夫', cat: '外国文学' },
+      { text: '于是我们奋力前行，却如同逆水行舟，注定要不停地退回过去。', trans: 'So we beat on, boats against the current, borne back ceaselessly into the past.', author: '菲茨杰拉德《了不起的盖茨比》', cat: '外国文学' },
+      { text: '对每个人而言，真正的职责只有一个：找到自我。', trans: 'For everyone, the true duty is only one: to find oneself.', author: '黑塞《德米安》', cat: '外国文学' },
+      { text: '所有的大人都曾经是小孩，虽然，只有少数的人记得。', trans: 'All grown-ups were once children... but only few of them remember it.', author: '圣埃克苏佩里《小王子》', cat: '外国文学' },
+      { text: '我们笑着说再见，却深知再见遥遥无期。', trans: 'We laughed and kept saying "see you soon", but inside we both knew we\'d never see each other again.', author: '卡勒德·胡赛尼《追风筝的人》', cat: '外国文学' },
+      { text: '生命中曾经有过的所有灿烂，终究都需要用寂寞来偿还。', trans: 'All brilliant things in life must be paid for with loneliness.', author: '马尔克斯《百年孤独》', cat: '外国文学' },
+      { text: '我步入丛林，因为我希望生活得有意义。', trans: 'I went to the woods because I wished to live deliberately.', author: '梭罗《瓦尔登湖》', cat: '外国文学' },
+      { text: '希望是长着羽毛的东西，栖息在灵魂里。', trans: 'Hope is the thing with feathers that perches in the soul.', author: '艾米莉·狄金森', cat: '外国文学' },
+      { text: '假如生活欺骗了你，不要悲伤，不要心急。', trans: 'If by life you were deceived, don\'t be dismal, don\'t be wild.', author: '普希金', cat: '外国文学' },
+      { text: '世界上最宽阔的是海洋，比海洋更宽阔的是天空，比天空更宽阔的是人的胸怀。', trans: 'The ocean is wider than the earth, the sky is wider than the ocean, and the human heart is wider than the sky.', author: '雨果《悲惨世界》', cat: '外国文学' },
+      // 名人哲思
+      { text: '未经审视的人生不值得过。', trans: 'The unexamined life is not worth living.', author: '苏格拉底', cat: '名人哲思' },
+      { text: '最大的财富，就是满足于少量。', trans: 'The greatest wealth is to live content with little.', author: '柏拉图', cat: '名人哲思' },
+      { text: '优秀不是一种行为，而是一种习惯。', trans: 'Excellence is not an act, but a habit.', author: '亚里士多德', cat: '名人哲思' },
+      { text: '生活就像骑自行车，为了保持平衡，你必须不断前进。', trans: 'Life is like riding a bicycle. To keep your balance you must keep moving.', author: '爱因斯坦', cat: '名人哲思' },
+      { text: '欲变世界，先变其身。', trans: 'Be the change that you wish to see in the world.', author: '甘地', cat: '名人哲思' },
+      { text: '自由不是想做什么就做什么，而是不想做什么就可以不做什么。', author: '康德', cat: '名人哲思' },
+      { text: '生命是一团欲望，欲望不能满足便痛苦，满足便无聊。', author: '叔本华', cat: '名人哲思' },
+      { text: '世界上最伟大的事，是一个人懂得如何作自己的主人。', author: '蒙田', cat: '名人哲思' },
+      { text: '知识就是力量。', trans: 'Knowledge is power.', author: '培根', cat: '名人哲思' },
+      { text: '我思故我在。', trans: 'I think, therefore I am.', author: '笛卡尔', cat: '名人哲思' },
+      { text: '你可以一时欺骗所有人，也可以永远欺骗某些人，但不可能永远欺骗所有人。', author: '林肯', cat: '名人哲思' },
+      { text: '成功不是终点，失败也非末日，最重要的是继续前进的勇气。', author: '丘吉尔', cat: '名人哲思' },
+      { text: '虽然世界多苦难，但苦难总是能战胜的。', author: '海伦·凯勒', cat: '名人哲思' },
+      { text: '我有一个梦想。', trans: 'I have a dream.', author: '马丁·路德·金', cat: '名人哲思' },
+      { text: '求知若饥，虚心若愚。', trans: 'Stay hungry, stay foolish.', author: '史蒂夫·乔布斯', cat: '名人哲思' },
+      { text: '人生的道路都是由心来描绘的。', author: '稻盛和夫', cat: '名人哲思' },
+      { text: '既往不恋，当下不杂，未来不迎。', author: '曾国藩', cat: '名人哲思' },
+      { text: '知行合一。', author: '王阳明', cat: '名人哲思' },
+      { text: '不完满才是人生。', author: '季羡林', cat: '名人哲思' },
+      { text: '从前的日色变得慢，车、马、邮件都慢，一生只够爱一个人。', author: '木心', cat: '名人哲思' },
+      // 古典诗词
+      { text: '人生如逆旅，我亦是行人。', author: '苏轼《临江仙》', cat: '古典诗词' },
+      { text: '举杯邀明月，对影成三人。', author: '李白《月下独酌》', cat: '古典诗词' },
+      { text: '会当凌绝顶，一览众山小。', author: '杜甫《望岳》', cat: '古典诗词' },
+      { text: '行到水穷处，坐看云起时。', author: '王维《终南别业》', cat: '古典诗词' },
+      { text: '采菊东篱下，悠然见南山。', author: '陶渊明《饮酒》', cat: '古典诗词' },
+      { text: '知否，知否？应是绿肥红瘦。', author: '李清照《如梦令》', cat: '古典诗词' },
+      { text: '蓦然回首，那人却在，灯火阑珊处。', author: '辛弃疾《青玉案·元夕》', cat: '古典诗词' },
+      { text: '山重水复疑无路，柳暗花明又一村。', author: '陆游《游山西村》', cat: '古典诗词' },
+      { text: '沉舟侧畔千帆过，病树前头万木春。', author: '刘禹锡《酬乐天扬州初逢席上见赠》', cat: '古典诗词' },
+      { text: '身无彩凤双飞翼，心有灵犀一点通。', author: '李商隐《无题》', cat: '古典诗词' },
+      { text: '人生若只如初见，何事秋风悲画扇。', author: '纳兰性德《木兰花令》', cat: '古典诗词' },
+      { text: '衣带渐宽终不悔，为伊消得人憔悴。', author: '柳永《蝶恋花》', cat: '古典诗词' },
+      { text: '无可奈何花落去，似曾相识燕归来。', author: '晏殊《浣溪沙》', cat: '古典诗词' },
+      { text: '莫等闲，白了少年头，空悲切。', author: '岳飞《满江红》', cat: '古典诗词' },
+      { text: '人生自古谁无死，留取丹心照汗青。', author: '文天祥《过零丁洋》', cat: '古典诗词' },
+      { text: '长风破浪会有时，直挂云帆济沧海。', author: '李白《行路难》', cat: '古典诗词' },
+      { text: '但愿人长久，千里共婵娟。', author: '苏轼《水调歌头》', cat: '古典诗词' },
+      { text: '人生代代无穷已，江月年年只相似。', author: '张若虚《春江花月夜》', cat: '古典诗词' },
+      { text: '最是人间留不住，朱颜辞镜花辞树。', author: '王国维', cat: '古典诗词' },
+      { text: '满纸荒唐言，一把辛酸泪。都云作者痴，谁解其中味？', author: '曹雪芹《红楼梦》', cat: '古典诗词' },
+      // 影视台词
+      { text: '希望是美好的，也许是人间至善，而美好的事物永不消逝。', trans: 'Hope is a good thing, maybe the best of things, and no good thing ever dies.', author: '《肖申克的救赎》', cat: '影视台词' },
+      { text: '生活就像一盒巧克力，你永远不知道下一颗是什么味道。', trans: 'Life was like a box of chocolates. You never know what you\'re gonna get.', author: '《阿甘正传》', cat: '影视台词' },
+      { text: '不管前方的路有多苦，只要走的方向正确，都比站在原地更接近幸福。', author: '《千与千寻》', cat: '影视台词' },
+      { text: '人生总是这么痛苦吗？还是只有小时候是这样？', trans: 'Is life always this hard, or is it just when you\'re a kid?', author: '《这个杀手不太冷》', cat: '影视台词' },
+      { text: '你跳，我就跳。', trans: 'You jump, I jump.', author: '《泰坦尼克号》', cat: '影视台词' },
+      { text: '只有用心灵才能看得清事物本质，真正重要的东西是肉眼无法看见的。', trans: 'It is only with the heart that one can see rightly; what is essential is invisible to the eye.', author: '《小王子》', cat: '影视台词' },
+      { text: '假如再也见不到你，祝你早安、午安、晚安。', trans: 'In case I don\'t see you... good afternoon, good evening, and good night.', author: '《楚门的世界》', cat: '影视台词' },
+      { text: '如果你有梦想，就要去捍卫它。', trans: 'You got a dream, you gotta protect it.', author: '《当幸福来敲门》', cat: '影视台词' },
+      { text: '决定我们成为什么样人的，不是我们的能力，而是我们的选择。', trans: 'It is our choices that show what we truly are, far more than our abilities.', author: '《哈利·波特》', cat: '影视台词' },
+      { text: '抓住当下，孩子们，让生命变得非凡。', trans: 'Seize the day, boys. Make your lives extraordinary.', author: '《死亡诗社》', cat: '影视台词' },
+      { text: '爱是一种力量，让我们超越时空的维度来感知它的存在。', trans: 'Love is the one thing we\'re capable of perceiving that transcends dimensions of time and space.', author: '《星际穿越》', cat: '影视台词' },
+      { text: '斯人若彩虹，遇上方知有。', trans: 'Some of us get dipped in flat, some in satin, some in gloss. But every once in a while you find someone who\'s iridescent.', author: '《怦然心动》', cat: '影视台词' },
+      { text: '追求卓越，成功就会在不经意间追上你。', author: '《三傻大闹宝莱坞》', cat: '影视台词' },
+      { text: '往往都是事情改变人，人却改变不了事情。', author: '《无间道》', cat: '影视台词' },
+      { text: '这短短的一生，我们最终都会失去。你不妨大胆一些，爱一个人，攀一座山，追一个梦。', author: '《大鱼海棠》', cat: '影视台词' },
+      { text: '因为国民不富裕就不能受法律保护，不能享受民主主义，这种说法我是无法接受的。', author: '《辩护人》', cat: '影视台词' },
+      { text: '我们一路奋战，不是为了能改变世界，而是为了不让世界改变我们。', author: '《熔炉》', cat: '影视台词' },
+      { text: '站着，也能把钱挣了。', author: '《让子弹飞》', cat: '影视台词' },
+      { text: '不疯魔，不成活。', author: '《霸王别姬》', cat: '影视台词' },
+      { text: '希望，是我们这个年代像钻石一样珍贵的东西。', author: '《流浪地球》', cat: '影视台词' },
+    ];
     const FIN_CATS = {
       expense: [
         { key: '🍜餐饮', icon: '🍜', name: '餐饮' },
@@ -3271,11 +3134,28 @@
     // ================= 云朵充电站（日期切换 · 每日一解锁） =================
     let currentCloudQuote = null;
     let cloudViewDay = 1;
-    const CLOUD_CAT_EMOJI = { '治愈': '☀️', '励志': '🌟', '自由': '🌙', '孤独': '🌧️', '自定义': '✍️' };
+    const CLOUD_CAT_EMOJI = { '中国文学': '🇨🇳', '外国文学': '🌍', '名人哲思': '💡', '古典诗词': '📜', '影视台词': '🎬', '自定义': '✍️' };
 
+    function seededShuffle(arr, seed) {
+      const a = arr.slice();
+      let h = 0;
+      for (let i = 0; i < seed.length; i++) h = ((h * 31) + seed.charCodeAt(i)) >>> 0;
+      function rand() {
+        let t = h += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      }
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
     function cloudMasterList() {
+      const base = seededShuffle(QUOTE_LIBRARY, (data.startDate || todayKey()) + '_cloud_v1');
       const custom = (data.cloudCustom || []).map(q => ({ text: q.text, author: q.author || '佚名', cat: q.cat || '自定义' }));
-      return QUOTE_LIBRARY.concat(custom);
+      return base.concat(custom);
     }
     function cloudDayNumber() {
       const start = new Date((data.startDate || todayKey()) + 'T00:00:00');
@@ -3300,15 +3180,6 @@
       renderCloudLikes();
       renderCloudCustom();
     }
-    function renderCloudCats() {
-      const cats = ['治愈', '励志', '自由', '孤独'];
-      const cur = currentCloudQuote ? currentCloudQuote.cat : null;
-      document.getElementById('cloudCats').innerHTML = cats.map(c => {
-        const active = cur === c;
-        const label = (CLOUD_CAT_EMOJI[c] || '☁️') + ' ' + c;
-        return `<span class="tag-pill px-3 py-1.5 rounded-full text-xs font-semibold border ${active ? 'bg-sky text-gray-700' : 'bg-white/40 text-gray-400'} border-white">${label}</span>`;
-      }).join('');
-    }
     function cloudStep(dir) {
       const todayDay = cloudDayNumber();
       let nd = cloudViewDay + dir;
@@ -3332,6 +3203,7 @@
       if (dateLabel) dateLabel.innerHTML = `第 ${viewDay} 天 · ${dtStr}`;
       const locked = viewDay > todayDay;
       const textEl = document.getElementById('cloudQuoteText');
+      const transEl = document.getElementById('cloudQuoteTrans');
       const authorEl = document.getElementById('cloudQuoteAuthor');
       const metaEl = document.getElementById('cloudQuoteMeta');
       const likeBtn = document.getElementById('cloudLikeBtn');
@@ -3339,6 +3211,7 @@
         currentCloudQuote = null;
         textEl.textContent = '🔒';
         textEl.className = 'text-4xl mb-3';
+        if (transEl) { transEl.textContent = ''; transEl.classList.add('hidden'); }
         authorEl.textContent = '';
         metaEl.innerHTML = `第 ${viewDay} 天的云朵正在来的路上，<br>到了那天再来看看吧 ☁️`;
         if (likeBtn) likeBtn.classList.add('hidden');
@@ -3346,8 +3219,13 @@
         currentCloudQuote = q;
         textEl.textContent = '“' + q.text + '”';
         textEl.className = 'text-gray-800 font-medium text-2xl md:text-3xl leading-relaxed mb-3 font-cute';
+        if (transEl) {
+          if (q.trans) { transEl.textContent = q.trans; transEl.classList.remove('hidden'); }
+          else { transEl.textContent = ''; transEl.classList.add('hidden'); }
+        }
         authorEl.textContent = '—— ' + q.author;
-        metaEl.innerHTML = `分类：${q.cat}`;
+        const emoji = CLOUD_CAT_EMOJI[q.cat] || '☁️';
+        metaEl.innerHTML = `${emoji} 分类：${q.cat}`;
         if (likeBtn) likeBtn.classList.remove('hidden');
       }
       const prev = document.getElementById('cloudPrev');
@@ -3357,7 +3235,6 @@
         else { prev.disabled = false; prev.classList.remove('opacity-40', 'cursor-not-allowed'); }
       }
       if (next) { next.disabled = false; next.classList.remove('opacity-40', 'cursor-not-allowed'); }
-      renderCloudCats();
       updateCloudLikeBtn();
       renderCloudHistory();
     }
@@ -3366,7 +3243,7 @@
       data.cloudLikes = data.cloudLikes || [];
       const i = data.cloudLikes.findIndex(q => q.text === currentCloudQuote.text && q.author === currentCloudQuote.author);
       if (i >= 0) data.cloudLikes.splice(i, 1);
-      else data.cloudLikes.unshift({ text: currentCloudQuote.text, author: currentCloudQuote.author, cat: currentCloudQuote.cat, favDate: todayKey() });
+      else data.cloudLikes.unshift({ text: currentCloudQuote.text, trans: currentCloudQuote.trans || '', author: currentCloudQuote.author, cat: currentCloudQuote.cat, favDate: todayKey() });
       saveData(); renderCloudLikes(); updateCloudLikeBtn(); renderOverview(); renderSidebarOverview();
     }
     function updateCloudLikeBtn() {
@@ -3385,6 +3262,7 @@
       list.innerHTML = likes.map((q, i) => `
         <div class="bg-white/50 px-3 py-2 rounded-xl text-xs border border-white">
           <div class="text-gray-700 mb-0.5">${escapeHtml(q.text)}</div>
+          ${q.trans ? `<div class="text-gray-500 italic text-[10px] mb-0.5">${escapeHtml(q.trans)}</div>` : ''}
           <div class="flex items-center justify-between">
             <span class="text-gray-400">${q.author ? ('—— ' + escapeHtml(q.author)) : ''} · ${q.cat || ''}</span>
             <button onclick="removeCloudLike(${i})" class="text-gray-400 hover:text-red-400" title="取消收藏">✕</button>
