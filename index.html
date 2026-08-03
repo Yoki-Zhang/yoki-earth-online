@@ -97,23 +97,40 @@
       background: rgba(255, 255, 255, 0.92) !important;
       border-radius: 16px !important;
     }
-    .toast-pop {
+    #toast-container {
       position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(60, 70, 90, 0.92);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-size: 0.9rem;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10000;
+      pointer-events: none;
+      align-items: flex-end;
+    }
+    .toast-pop {
+      min-width: 220px;
+      max-width: 320px;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.35;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       opacity: 0;
-      pointer-events: none;
-      transition: all 0.3s ease;
-      z-index: 9999;
+      transform: translateX(40px);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.21,1.02,.73,1);
+      pointer-events: auto;
     }
-    .toast-pop.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-pop.show { opacity: 1; transform: translateX(0); }
+    .toast-success {
+      background: linear-gradient(135deg, #B5E8B0 0%, #FCE38A 100%);
+      color: #3a5a40;
+    }
+    .toast-info {
+      background: linear-gradient(135deg, #A1C4FD 0%, #C2E9FB 100%);
+      color: #2c3e60;
+    }
     .section-pane {
       display: none;
       opacity: 0;
@@ -467,6 +484,24 @@
               <div id="welcome-streak" class="text-3xl font-bold">0 天</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="glass-card p-5 mb-6">
+        <h3 class="font-cute text-xl text-gray-800 mb-4">⚡ 快捷操作</h3>
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="openQAWeight()" class="flex flex-col items-center justify-center gap-1.5 py-5 rounded-3xl text-white font-semibold shadow-sm btn-bounce" style="background:linear-gradient(135deg,#FFC3A0,#FF9A8B)">
+            <span class="text-3xl">📝</span>
+            <span class="text-xs sm:text-sm leading-tight px-1 text-center">记录今日体重</span>
+          </button>
+          <button onclick="openQAMood()" class="flex flex-col items-center justify-center gap-1.5 py-5 rounded-3xl text-white font-semibold shadow-sm btn-bounce" style="background:linear-gradient(135deg,#FBC2EB,#FF9A9E)">
+            <span class="text-3xl">💬</span>
+            <span class="text-xs sm:text-sm leading-tight px-1 text-center">记一笔心情</span>
+          </button>
+          <button onclick="openQAExpense()" class="flex flex-col items-center justify-center gap-1.5 py-5 rounded-3xl text-white font-semibold shadow-sm btn-bounce" style="background:linear-gradient(135deg,#7EE0A8,#56C596)">
+            <span class="text-3xl">💰</span>
+            <span class="text-xs sm:text-sm leading-tight px-1 text-center">记一笔支出</span>
+          </button>
         </div>
       </div>
 
@@ -1053,6 +1088,53 @@
       </div>
     </div>
 
+    <!-- 首页快捷操作：记录今日体重 -->
+    <div id="qaWeightModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='qaWeightModal')closeQAWeight()">
+      <div class="glass-card rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-cute text-xl text-gray-800">📝 记录今日体重</h3>
+          <button onclick="closeQAWeight()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <input type="number" id="qaWeightInput" step="0.1" min="0" placeholder="今日体重 (kg)" class="w-full px-4 py-3 rounded-2xl border border-white bg-white/60 focus:outline-none focus:ring-2 focus:ring-mintDark mb-5 text-center text-lg">
+        <div class="flex gap-3">
+          <button onclick="closeQAWeight()" class="flex-1 py-3 rounded-2xl bg-white/70 hover:bg-white text-gray-600 font-semibold border border-white btn-bounce">取消</button>
+          <button onclick="saveQAWeight()" class="flex-1 py-3 rounded-2xl text-white font-bold btn-bounce" style="background:linear-gradient(135deg,#FFC3A0,#FF9A8B)">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 首页快捷操作：记一笔心情 -->
+    <div id="qaMoodModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='qaMoodModal')closeQAMood()">
+      <div class="glass-card rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-cute text-xl text-gray-800">💬 记一笔心情</h3>
+          <button onclick="closeQAMood()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <textarea id="qaMoodInput" rows="3" placeholder="今天想说点什么…" class="w-full px-4 py-3 rounded-2xl border border-white bg-white/60 focus:outline-none focus:ring-2 focus:ring-macaronDark mb-4 resize-none text-sm"></textarea>
+        <div id="qaMoodTags" class="flex justify-between gap-1.5 mb-5"></div>
+        <div class="flex gap-3">
+          <button onclick="closeQAMood()" class="flex-1 py-3 rounded-2xl bg-white/70 hover:bg-white text-gray-600 font-semibold border border-white btn-bounce">取消</button>
+          <button onclick="saveQAMood()" class="flex-1 py-3 rounded-2xl text-white font-bold btn-bounce" style="background:linear-gradient(135deg,#FBC2EB,#FF9A9E)">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 首页快捷操作：记一笔支出 -->
+    <div id="qaExpenseModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='qaExpenseModal')closeQAExpense()">
+      <div class="glass-card rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-cute text-xl text-gray-800">💰 记一笔支出</h3>
+          <button onclick="closeQAExpense()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <input type="number" id="qaExpenseAmount" step="0.01" min="0" placeholder="金额 (¥)" class="w-full px-4 py-3 rounded-2xl border border-white bg-white/60 focus:outline-none focus:ring-2 focus:ring-mintDark mb-4 text-center text-lg">
+        <div id="qaExpenseCats" class="grid grid-cols-4 gap-2 mb-5"></div>
+        <div class="flex gap-3">
+          <button onclick="closeQAExpense()" class="flex-1 py-3 rounded-2xl bg-white/70 hover:bg-white text-gray-600 font-semibold border border-white btn-bounce">取消</button>
+          <button onclick="saveQAExpense()" class="flex-1 py-3 rounded-2xl text-white font-bold btn-bounce" style="background:linear-gradient(135deg,#7EE0A8,#56C596)">保存</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 板块5：云朵充电站（日期切换 · 每日一解锁） -->
     <section id="section-cloud" class="section-pane">
       <div class="glass-card p-6">
@@ -1227,69 +1309,89 @@
       </div>
     </section>
 
-    <!-- ====== 板块：财富风向标（理财） ====== -->
+    <!-- ====== 板块：财富风向标（基金持仓管理 · 养基宝思路） ====== -->
     <section id="section-fund" class="section-pane">
       <div class="w-full">
         <div class="flex items-center gap-3 mb-4">
           <div class="section-icon bg-macaron">📈</div>
           <div>
             <h2 class="font-cute text-2xl text-gray-800">财富风向标</h2>
-            <p class="text-xs text-gray-500">📈 手动记录净值，慢慢养出自己的理财直觉。</p>
+            <p class="text-xs text-gray-500">🐔 养基日记 · 多账户聚合 · 智能调仓。</p>
           </div>
         </div>
 
-        <!-- 顶部总览卡（深色） -->
+        <!-- 账户切换 -->
+        <div id="fundAccountTabs" class="flex items-center gap-2 overflow-x-auto pb-2 mb-3"></div>
+
+        <!-- 顶部总览卡（深色渐变） -->
         <div class="finance-dark-card p-6 mb-5">
           <div class="flex items-center justify-between mb-2">
-            <div class="text-sm opacity-80">总资产</div>
-            <button onclick="openNavCheckModal()" class="text-xs bg-white/15 hover:bg-white/25 px-3 py-1 rounded-full transition">📝 记录今日净值</button>
+            <div class="text-sm opacity-80" id="fundOverviewScope">总览 · 全部账户</div>
+            <button onclick="openNavCheckModal()" class="text-xs bg-white/15 hover:bg-white/25 px-3 py-1 rounded-full transition">📝 更新今日净值</button>
           </div>
           <div id="fundTotalAssets" class="text-4xl font-bold mb-4">¥0.00</div>
-          <div class="grid grid-cols-2 gap-3 text-center">
-            <div><div class="text-xs opacity-70">今日盈亏</div><div id="fundTodayPnl" class="text-2xl font-bold">—</div></div>
-            <div><div class="text-xs opacity-70">总收益率</div><div id="fundReturnPct" class="text-2xl font-bold">+0.00%</div></div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div><div class="text-xs opacity-70">今日盈亏</div><div id="fundTodayPnl" class="text-xl font-bold">—</div></div>
+            <div><div class="text-xs opacity-70">总收益率</div><div id="fundReturnPct" class="text-xl font-bold">+0.00%</div></div>
+            <div><div class="text-xs opacity-70">持仓成本</div><div id="fundTotalCost" class="text-xl font-bold">¥0.00</div></div>
           </div>
         </div>
 
         <!-- 持仓明细 -->
         <div class="glass-card p-5 mb-5">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="font-cute text-lg">📊 持仓明细</h3>
+            <h3 class="font-cute text-lg">📊 持仓明细 <span id="fundHoldCount" class="text-xs text-gray-400"></span></h3>
             <button onclick="openAddFundModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold text-xs shadow-sm">➕ 添加基金</button>
           </div>
           <div id="fundHoldings" class="space-y-2"></div>
         </div>
 
-        <!-- 净值打卡与走势图 -->
+        <!-- 收益走势 -->
         <div class="glass-card p-5 mb-5">
-          <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-            <h3 class="font-cute text-lg">📈 收益走势（近 30 天）</h3>
-            <button onclick="openNavCheckModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-sky hover:bg-skyDark text-gray-700 font-semibold text-xs shadow-sm">📝 记录今日净值</button>
-          </div>
-          <div id="fundChartHint" class="text-xs text-gray-500 mb-2">记录每日净值后，这里会自动生成近 30 天的累计总资产走势图。</div>
+          <h3 class="font-cute text-lg mb-2">📈 收益走势（近 30 天）</h3>
+          <div id="fundChartHint" class="text-xs text-gray-500 mb-2">每日更新净值后，这里会自动生成近 30 天的总资产走势。</div>
           <div class="h-52"><canvas id="fundTrendChart"></canvas></div>
         </div>
 
-        <!-- 调仓建议 -->
+        <!-- 调仓建议 + 行业集中度 -->
         <div class="glass-card p-5 mb-5">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="font-cute text-lg">🧭 调仓建议</h3>
-            <button onclick="openTargetModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-mint hover:bg-mintDark text-gray-700 font-semibold text-xs shadow-sm">⚙️ 设置目标仓位</button>
+            <h3 class="font-cute text-lg">🧭 智能调仓建议</h3>
+            <button onclick="openTargetModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-mint hover:bg-mintDark text-gray-700 font-semibold text-xs shadow-sm">⚙️ 目标仓位</button>
           </div>
           <div id="fundRebalanceList" class="mb-3"></div>
+          <div id="fundConcentration" class="mb-3"></div>
           <div id="fundAdvice" class="rounded-2xl bg-white/50 border border-white p-3"></div>
         </div>
 
-        <!-- 交易记录 -->
+        <!-- 收益日历 -->
         <div class="glass-card p-5 mb-5">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="font-cute text-lg">📒 交易记录</h3>
-            <button onclick="openTxModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold text-xs shadow-sm">➕ 记一笔交易</button>
+            <h3 class="font-cute text-lg">📅 收益日历</h3>
+            <div class="flex items-center gap-2 text-sm">
+              <button onclick="fundShiftMonth(-1)" class="w-7 h-7 rounded-full bg-white/60 hover:bg-white text-gray-600 flex items-center justify-center">‹</button>
+              <span id="fundCalMonth" class="font-semibold text-gray-700 min-w-[84px] text-center">2026-08</span>
+              <button onclick="fundShiftMonth(1)" class="w-7 h-7 rounded-full bg-white/60 hover:bg-white text-gray-600 flex items-center justify-center">›</button>
+            </div>
           </div>
-          <div id="fundTxList" class="space-y-2 max-h-[360px] overflow-y-auto pr-1"></div>
+          <div class="grid grid-cols-7 gap-1 text-center text-[11px] text-gray-400 mb-1">
+            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+          </div>
+          <div id="fundCalGrid" class="grid grid-cols-7 gap-1"></div>
+          <div id="fundCalDetail" class="mt-3 text-sm text-gray-600 min-h-[20px]"></div>
         </div>
 
-        <p class="text-[11px] text-gray-400 text-center mb-2">💡 本地 PWA 不联网获取实时估值，净值由你手动记录，数据完全自己掌控。</p>
+        <!-- 周报 / 月报 -->
+        <div class="glass-card p-5 mb-5">
+          <h3 class="font-cute text-lg mb-3">📊 盈亏报告</h3>
+          <div class="flex gap-2 mb-3">
+            <button onclick="genFundReport('week')" class="flex-1 py-2 rounded-2xl bg-sky hover:bg-skyDark text-gray-700 font-semibold text-sm">📊 生成周报</button>
+            <button onclick="genFundReport('month')" class="flex-1 py-2 rounded-2xl bg-sky hover:bg-skyDark text-gray-700 font-semibold text-sm">📊 生成月报</button>
+          </div>
+          <div id="fundReport" class="text-sm text-gray-600"></div>
+        </div>
+
+        <p class="text-[11px] text-gray-400 text-center mb-2">💡 本地 PWA 不联网获取实时估值，净值由你手动记录；数据完全自己掌控。</p>
       </div>
     </section>
 
@@ -1411,7 +1513,22 @@
     </div>
   </div>
 
-  <!-- 财富风向标：添加基金 Modal -->
+  <!-- 财富风向标：管理账户 Modal -->
+  <div id="fundAccountModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='fundAccountModal')closeFundAccountModal()">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cute text-lg text-gray-700">🏦 管理账户</h3>
+        <button onclick="closeFundAccountModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+      </div>
+      <div id="fundAccountList" class="space-y-2 mb-3"></div>
+      <div class="flex gap-2">
+        <input id="fundAccountName" type="text" placeholder="新账户名，如：支付宝 / 天天基金" class="flex-1 px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+        <button onclick="addFundAccount()" class="px-4 py-2 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold text-sm">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 财富风向标：添加基金 Modal（输入自动补全） -->
   <div id="addFundModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='addFundModal')closeAddFundModal()">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
       <div class="flex items-center justify-between mb-4">
@@ -1420,35 +1537,44 @@
       </div>
       <div class="space-y-3">
         <div>
-          <label class="text-xs text-gray-500">基金名称</label>
-          <input id="fundNameInput" type="text" placeholder="如：沪深300ETF、余额宝" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          <label class="text-xs text-gray-500">所属账户</label>
+          <select id="addFundAccount" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark"></select>
         </div>
+        <div class="relative">
+          <label class="text-xs text-gray-500">搜索基金（输入名称或代码）</label>
+          <input id="fundSearchInput" type="text" autocomplete="off" oninput="fundAutocomplete()" onfocus="fundAutocomplete()" placeholder="如：招商中证白酒 / 161725" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          <div id="fundSuggest" class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-lg max-h-52 overflow-y-auto hidden"></div>
+        </div>
+        <div id="addFundPicked" class="hidden rounded-2xl bg-mint/20 px-3 py-2 text-sm text-gray-700">已选：<span id="addFundPickedName" class="font-semibold"></span> <span id="addFundPickedMeta" class="text-gray-500 text-xs"></span></div>
+        <input type="hidden" id="addFundCode">
+        <input type="hidden" id="addFundTheme">
         <div>
-          <label class="text-xs text-gray-500">类别（用于调仓建议）</label>
-          <select id="fundTypeInput" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          <label class="text-xs text-gray-500">基金类型</label>
+          <select id="addFundType" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
             <option value="股票型">📈 股票型</option>
+            <option value="混合型">🧩 混合型</option>
+            <option value="指数型">📊 指数型</option>
             <option value="债券型">🏦 债券型</option>
             <option value="货币型">💰 货币型</option>
-            <option value="混合型">🧩 混合型</option>
-            <option value="QDII海外">🌍 QDII / 海外</option>
+            <option value="QDII">🌍 QDII / 海外</option>
           </select>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div>
             <label class="text-xs text-gray-500">持有份额</label>
-            <input id="fundSharesInput" type="number" inputmode="decimal" placeholder="份额" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+            <input id="addFundShares" type="number" inputmode="decimal" placeholder="份额" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
           </div>
           <div>
-            <label class="text-xs text-gray-500">成本价</label>
-            <input id="fundCostInput" type="number" inputmode="decimal" placeholder="¥" oninput="if(!document.getElementById('fundPriceInput').value)document.getElementById('fundPriceInput').value=this.value" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+            <label class="text-xs text-gray-500">成本单价</label>
+            <input id="addFundCost" type="number" inputmode="decimal" placeholder="¥" oninput="if(!document.getElementById('addFundPrice').value)document.getElementById('addFundPrice').value=this.value" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
           </div>
           <div>
             <label class="text-xs text-gray-500">当前净值</label>
-            <input id="fundPriceInput" type="number" inputmode="decimal" placeholder="¥" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+            <input id="addFundPrice" type="number" inputmode="decimal" placeholder="¥" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
           </div>
         </div>
       </div>
-      <p class="text-[11px] text-gray-400 mt-2">当前净值默认取成本价，可手动改为最新净值。今日总资产快照会在保存时自动记录。</p>
+      <p class="text-[11px] text-gray-400 mt-2">支持从内置基金名册自动补全；未收录的基金也可手动填写名称与类型。保存时自动记录今日总资产快照。</p>
       <div class="flex gap-3 mt-4">
         <button onclick="closeAddFundModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
         <button onclick="saveFund()" class="flex-1 py-2.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold">保存</button>
@@ -1495,6 +1621,14 @@
           <span class="flex items-center gap-1"><input id="target_股票型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
         </div>
         <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">🧩 混合型</span>
+          <span class="flex items-center gap-1"><input id="target_混合型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">📊 指数型</span>
+          <span class="flex items-center gap-1"><input id="target_指数型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
           <span class="text-sm text-gray-700">🏦 债券型</span>
           <span class="flex items-center gap-1"><input id="target_债券型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
         </div>
@@ -1503,15 +1637,18 @@
           <span class="flex items-center gap-1"><input id="target_货币型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
         </div>
         <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
-          <span class="text-sm text-gray-700">🧩 混合型</span>
-          <span class="flex items-center gap-1"><input id="target_混合型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
-        </div>
-        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
           <span class="text-sm text-gray-700">🌍 QDII / 海外</span>
-          <span class="flex items-center gap-1"><input id="target_QDII海外" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+          <span class="flex items-center gap-1"><input id="target_QDII" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
         </div>
       </div>
       <p id="targetSumTip" class="text-[11px] text-gray-400 mt-2"></p>
+      <div class="mt-3 p-3 rounded-2xl bg-amber/10">
+        <div class="text-xs text-gray-500 mb-1">盈利显示颜色（可配置）</div>
+        <div class="flex gap-2">
+          <button type="button" onclick="setProfitColor('red')" id="profitRedBtn" class="flex-1 py-1.5 rounded-2xl text-sm font-semibold">🔴 红涨</button>
+          <button type="button" onclick="setProfitColor('green')" id="profitGreenBtn" class="flex-1 py-1.5 rounded-2xl text-sm font-semibold">🟢 绿涨</button>
+        </div>
+      </div>
       <div class="flex gap-3 mt-4">
         <button onclick="closeTargetModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
         <button onclick="saveTarget()" class="flex-1 py-2.5 rounded-2xl bg-mint hover:bg-mintDark text-gray-700 font-semibold">保存</button>
@@ -1519,44 +1656,34 @@
     </div>
   </div>
 
-  <!-- 财富风向标：记一笔交易 Modal -->
-  <div id="txModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='txModal')closeTxModal()">
+  <!-- 财富风向标：编辑基金 Modal -->
+  <div id="editFundModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='editFundModal')closeEditFundModal()">
     <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-cute text-lg text-gray-700">📒 记一笔交易</h3>
-        <button onclick="closeTxModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+        <h3 class="font-cute text-lg text-gray-700">✏️ 编辑基金</h3>
+        <button onclick="closeEditFundModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
       </div>
+      <div id="editFundTitle" class="text-sm text-gray-500 mb-3"></div>
       <div class="space-y-3">
-        <div>
-          <label class="text-xs text-gray-500">选择基金</label>
-          <select id="txFundSelect" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark"></select>
-        </div>
-        <div>
-          <label class="text-xs text-gray-500">交易方向</label>
-          <div class="flex gap-2">
-            <button type="button" onclick="setTxType('buy')" id="txBuyBtn" class="flex-1 py-2 rounded-2xl bg-macaron text-gray-700 font-semibold text-sm">买入</button>
-            <button type="button" onclick="setTxType('sell')" id="txSellBtn" class="flex-1 py-2 rounded-2xl bg-gray-100 text-gray-600 font-semibold text-sm">卖出</button>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-3 gap-2">
           <div>
-            <label class="text-xs text-gray-500">份额</label>
-            <input id="txSharesInput" type="number" inputmode="decimal" placeholder="份额" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+            <label class="text-xs text-gray-500">持有份额</label>
+            <input id="editFundShares" type="number" inputmode="decimal" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
           </div>
           <div>
-            <label class="text-xs text-gray-500">成交价</label>
-            <input id="txPriceInput" type="number" inputmode="decimal" placeholder="¥" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+            <label class="text-xs text-gray-500">成本单价</label>
+            <input id="editFundCost" type="number" inputmode="decimal" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
           </div>
-        </div>
-        <div>
-          <label class="text-xs text-gray-500">备注（可选）</label>
-          <input id="txNoteInput" type="text" placeholder="如：定投 / 止盈" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          <div>
+            <label class="text-xs text-gray-500">当前净值</label>
+            <input id="editFundPrice" type="number" inputmode="decimal" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          </div>
         </div>
       </div>
-      <p class="text-[11px] text-gray-400 mt-2">买入会增加持仓份额并更新成本价；卖出减少份额。该记录独立保存在「财富风向标」中，不影响小猪记账。</p>
+      <p class="text-[11px] text-gray-400 mt-2">修改份额/成本后，持仓收益会自动重算；修改当前净值会记录今日快照。</p>
       <div class="flex gap-3 mt-4">
-        <button onclick="closeTxModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
-        <button onclick="saveTx()" class="flex-1 py-2.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold">保存</button>
+        <button onclick="closeEditFundModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
+        <button onclick="saveEditFund()" class="flex-1 py-2.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold">保存</button>
       </div>
     </div>
   </div>
@@ -1565,7 +1692,8 @@
     const DB_KEY = 'yoki-earth-online-v1';
     const MOOD_TAGS = {
       '😄开心': '#FEF3C7', '😌平静': '#D1FAE5', '😢难过': '#DBEAFE',
-      '😤愤怒': '#FEE2E2', '🥱疲惫': '#F3E8FF'
+      '😤愤怒': '#FEE2E2', '🥱疲惫': '#F3E8FF',
+      '😊': '#FCE7F3', '😌': '#D1FAE5', '😢': '#DBEAFE', '😤': '#FEE2E2', '🥱': '#F3E8FF'
     };
     // ============ 云朵充电站：名人文学语录库（100 条，每日一句不重复） ============
     const QUOTE_LIBRARY = [
@@ -1981,18 +2109,23 @@
     const NAV_ORDER_KEY = 'yoki_nav_order';
     const DEFAULT_NAV_ORDER = ['album','mood','health','finance','cloud','brain','review','fund'];
 
-    function showToast(message) {
-      let el = document.getElementById('global-toast');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'global-toast';
-        el.className = 'toast-pop';
-        document.body.appendChild(el);
+    function showToast(message, type) {
+      type = type || 'success';
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
       }
+      const el = document.createElement('div');
+      el.className = 'toast-pop toast-' + type;
       el.textContent = message;
-      el.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => el.classList.remove('show'), 2000);
+      container.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 400);
+      }, 2500);
     }
 
     function getSavedNavOrder() {
@@ -2361,6 +2494,7 @@
       document.getElementById('moodTagHint').classList.add('hidden');
       renderMoodImagePreview();
       saveData(); renderMoods(); updateMoodChart(); renderOverview(); renderSidebarOverview();
+      showToast('💭 心情已存档，你是被在意着的。', 'info');
     }
     function renderMoods() {
       const list = document.getElementById('moodList');
@@ -2402,10 +2536,22 @@
     }
     function toggleHealth(item) {
       const h = getTodayHealth();
-      h[item] = !h[item];
+      const now = !h[item];
+      h[item] = now;
       saveData(); renderHealth(); renderOverview(); renderSidebarOverview();
-      if (h.water && h.meals && h.exercise && h.sleep) {
-        setPetState('happy', '🎉 今日全成就！我是最健康的崽！', true);
+      if (now) {
+        const labels = {
+          water: '💧 今日饮水量达标！皮肤在说谢谢~',
+          meals: '🍱 三餐打卡完成，胃宝宝很满足~',
+          exercise: '🏃 太棒了！今日流汗KPI +1！',
+          sleep: '🌙 早睡打卡成功，晚安好梦~'
+        };
+        if (h.water && h.meals && h.exercise && h.sleep) {
+          setPetState('happy', '🎉 今日全成就！我是最健康的崽！', true);
+          showToast('🎉 今日健康全成就！你是最靓的崽！', 'success');
+        } else {
+          showToast(labels[item] || '✅ 打卡成功！', 'success');
+        }
       }
     }
     function addWeight() {
@@ -2428,6 +2574,7 @@
         else setPetState('happy', PET_BUBBLES.happy[Math.floor(Math.random()*PET_BUBBLES.happy.length)]);
       }
       updateWeightChart();
+      showToast('⚖️ 体重已记录，明天继续加油~', 'success');
     }
     function setPetState(state, bubbleText, danceLong = false) {
       const pet = document.getElementById('pet');
@@ -3121,8 +3268,9 @@
       const amt = parseFloat(document.getElementById('quickAddAmount').value);
       if (isNaN(amt) || amt <= 0) { alert('请输入有效金额'); return; }
       const note = document.getElementById('quickAddNote').value.trim();
-      data.finance.transactions.unshift({ id: 't_' + Date.now(), type: quickAddType, category: quickAddCat, amount: amt, note, date: todayKey() });
+      data.finance.transactions.unshift({ id: 't_' + Date.now(), type: quickAddType, category: quickAddCat, amount: amt, note, date: todayKey(), ts: Date.now() });
       saveData(); closeQuickAdd(); renderFinance(); renderOverview(); renderSidebarOverview();
+      showToast(quickAddType === 'income' ? '💰 收入已记录，钱包鼓鼓的~' : '💰 记账成功，钱包的小本本记下了~', 'success');
     }
     function deleteFinanceTx(id) {
       if (!confirm('删除这笔记录？')) return;
@@ -3751,6 +3899,7 @@
       saveData();
       renderBrain(); renderOverview(); renderSidebarOverview();
       checkTodayReward(false);
+      showToast('📚 单词达人！今日词汇量已充值！', 'success');
     }
 
     // ================= 播客计时 =================
@@ -3786,6 +3935,7 @@
       saveData();
       renderPodcast(); renderBrain(); renderOverview(); renderSidebarOverview();
       checkTodayReward(false);
+      showToast('🎧 播客收听 +' + min + ' 分钟，耳朵在度假~', 'info');
     }
     function checkTodayReward(manual) {
       const b = getTodayBrain();
@@ -3802,6 +3952,7 @@
           msg = '🎉 双目标达成，奖励金 +¥10 到账！';
           saveData(); renderBrain(); renderOverview(); renderSidebarOverview();
           if (window.setPetState) setPetState('happy', '💰 双目标达成，奖励金+10到账！', false);
+          showToast('🎊 学习+播客双达标！+10元奖励金已到账！', 'success');
           if (manual) alert(msg);
           return;
         } else { msg = '✅ 今日奖励金已发放（余额 ¥' + (data.rewardBalance || 0).toFixed(2) + '）'; }
@@ -3996,6 +4147,7 @@
       data.review[todayKey()] = text;
       input.value = '';
       saveData(); renderReview(); renderOverview(); renderSidebarOverview();
+      showToast('🌙 今日复盘已保存，晚安好梦~', 'success');
     }
     function editReview(date) {
       const text = prompt('编辑复盘：', data.review[date] || '');
@@ -4060,36 +4212,50 @@
     }
     function getLatestActivity() {
       const t = todayKey();
-      const acts = [];
-      if (data.photos.length) {
-        const p = data.photos[data.photos.length - 1];
-        acts.push({ icon: '🎞️', section: '胶卷盲盒', text: '上传了照片「' + (p.label || p.city || '未命名') + '」', time: daysAgo(p.uploadedAt || p.date) });
-      }
-      if (data.moods.length) {
-        const m = data.moods[0];
-        acts.push({ icon: '🗯️', section: '废话收容所', text: m.text || m.tag || '写了点什么', time: daysAgo(m.date) });
-      }
-      const h = getTodayHealth();
-      const doneCount = ['water','meals','exercise','sleep'].filter(k => h[k]).length;
-      if (doneCount) acts.push({ icon: '💪', section: '流汗KPI', text: `今日打卡 ${doneCount}/4 项`, time: '今天' });
-      if ((data.finance.transactions || []).length) {
-        const e = data.finance.transactions[0];
-        acts.push({ icon: '🐖', section: '小猪记账', text: (e.type === 'income' ? '收入 ' : '支出 ') + e.category.slice(2) + ' ¥' + e.amount.toFixed(0), time: daysAgo((e.date || t)) });
-      }
-      if ((data.cloudLikes || []).length || (data.cloudCustom || []).length) acts.push({ icon: '☁️', section: '云朵充电站', text: '收藏/写下了喜欢的句子', time: '今天' });
-      const w = getTodayWater();
-      const wml = (w.records || []).reduce((s, r) => s + (r.ml || 0), 0);
-      if (wml > 0) acts.push({ icon: '💧', section: '饮水记录', text: `今日饮水 ${wml}ml / ${w.goal || 2000}ml`, time: '今天' });
-      const sl = getTodaySleep();
-      if (sl.bedtime) {
-        let sq = '';
-        if (sl.duration != null && sl.duration !== undefined) sq = sl.duration >= 8 ? '（优秀🌟）' : sl.duration >= 6 ? '（良好😊）' : '（不足😴）';
-        acts.push({ icon: '🌙', section: '早睡打卡', text: `就寝 ${sl.bedtime}${sl.duration ? '，睡眠 ' + sl.duration + 'h' : ''}${sq}`, time: '今天' });
-      }
-      const b = getTodayBrain();
-      if (b.vocabDone || b.podcast) acts.push({ icon: '🧠', section: '脑力小作坊', text: `背单词${b.vocabDone ? '已通关' : (b.words || 0) + '词'} 听播客${b.podcast}分钟`, time: '今天' });
-      if (data.review[t]) acts.push({ icon: '🌙', section: '今天我没白过', text: data.review[t], time: '今天' });
-      return acts.slice(0, 6);
+      const evts = [];
+      const add = (ts, icon, section, key, summary) => {
+        if (summary && String(summary).trim()) evts.push({ ts, icon, section, key, summary: String(summary).trim() });
+      };
+      // 废话收容所
+      (data.moods || []).forEach(m => {
+        const txt = m.text || m.tag || '写了点什么';
+        add(m.date, '🗯️', '废话收容所', 'mood', '“' + txt + '”');
+      });
+      // 小猪记账
+      (data.finance.transactions || []).forEach(e => {
+        const amt = (Number(e.amount) || 0).toFixed(2);
+        const cat = (e.category || '').slice(2) || '其他';
+        const verb = e.type === 'income' ? '收入了' : '支出了';
+        const ts = e.ts || new Date((e.date || t) + 'T12:00:00').getTime();
+        add(ts, '🐖', '小猪记账', 'finance', `${verb} ¥${amt}（${cat}）`);
+      });
+      // 脑力小作坊
+      Object.keys(data.brain || {}).forEach(d => {
+        const b = data.brain[d];
+        if (!b) return;
+        const parts = [];
+        if (b.vocabDone) parts.push('背单词已通关 📚');
+        else if (b.words) parts.push(`背会了 ${b.words} 个单词 📚`);
+        if (b.podcast) parts.push(`听了 ${b.podcast} 分钟播客 🎧`);
+        if (parts.length) add(new Date(d + 'T20:00:00').getTime(), '🧠', '脑力小作坊', 'brain', parts.join('，'));
+      });
+      // 今天我没白过
+      Object.keys(data.review || {}).forEach(d => {
+        const txt = data.review[d];
+        if (txt) add(new Date(d + 'T22:00:00').getTime(), '🌙', '今天我没白过', 'review', '“' + txt + '”');
+      });
+      // 今日份流汗KPI（按各打卡项拆成独立动态）
+      const hTime = { water: '08:00', meals: '12:30', exercise: '18:00', sleep: '23:00' };
+      const hText = { water: '喝够水啦 💧', meals: '好好吃饭啦 🍚', exercise: '完成了运动打卡 🏃', sleep: '早睡打卡 🌙' };
+      Object.keys(data.health || {}).forEach(d => {
+        const h = data.health[d];
+        if (!h) return;
+        ['water', 'meals', 'exercise', 'sleep'].forEach(k => {
+          if (h[k]) add(new Date(d + 'T' + hTime[k] + ':00').getTime(), '💪', '今日份流汗KPI', 'health', hText[k]);
+        });
+      });
+      evts.sort((a, b) => b.ts - a.ts);
+      return evts.slice(0, 5);
     }
     function renderWelcome() {
       const d = new Date();
@@ -4121,15 +4287,25 @@
           <div class="text-xs font-semibold ${i.done ? 'text-green-600' : 'text-gray-400'}">${i.done ? '已打卡' : '未打卡'}</div>
         </div>`).join('');
       const latest = document.getElementById('welcome-latest');
-      if (latest) latest.innerHTML = getLatestActivity().map(a => `
-        <div class="flex items-center gap-3 bg-white/50 px-3 py-2.5 rounded-2xl border border-white">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-white/70 flex-shrink-0">${a.icon}</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-xs text-gray-400">${a.section}</div>
-            <div class="text-sm text-gray-700 truncate">${escapeHtml(a.text)}</div>
-          </div>
-          <div class="text-xs text-gray-400 flex-shrink-0">${a.time}</div>
-        </div>`).join('') || '<div class="text-center text-gray-400 text-sm py-2">还没有动态，去各板块逛逛吧~</div>';
+      if (latest) {
+        const acts = getLatestActivity();
+        if (!acts.length) {
+          latest.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">✨ 还没有动态，快去各个板块留下你的足迹吧~</div>';
+        } else {
+          latest.innerHTML = acts.map(a => {
+            const d = new Date(a.ts);
+            const time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            return `
+              <div onclick="showSection('${a.key}')" class="flex items-center gap-3 bg-white/50 px-3 py-2.5 rounded-2xl border border-white cursor-pointer hover:bg-white/80 transition">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg bg-white/70 flex-shrink-0">${a.icon}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs text-gray-400">📅 ${daysAgo(a.ts)} ${time}</div>
+                  <div class="text-sm text-gray-700 truncate"><span class="font-medium">${a.section}</span> · ${escapeHtml(a.summary)}</div>
+                </div>
+              </div>`;
+          }).join('');
+        }
+      }
       const sections = [
         { key: 'album', icon: '🎞️', name: '胶卷盲盒' },
         { key: 'mood', icon: '🗯️', name: '废话收容所' },
@@ -4222,119 +4398,399 @@
           data.finance = { month: today.slice(0,7), budget: 0, income: 0, transactions: [] };
           break;
         case 'fund':
-          fundData = { funds: [], navHistory: {} };
-          fundTarget = {};
-          fundRecords = [];
-          saveFund(); saveFundTarget(); saveFundRecords();
+          fundAccounts = []; fundHoldings = []; fundDaily = {}; fundTarget = {}; fundSettings = { profitColor: 'red', activeAccount: 'all' };
+          saveFundAccounts(); saveFundHoldings(); saveFundDaily(); saveFundTarget(); saveFundSettings();
           break;
       }
     }
 
-    // ================= 财富风向标（独立基金理财模块） =================
-    const FUND_KEY = 'yoki_fund_data';
-    const FUND_TARGET_KEY = 'yoki_fund_target';
-    const FUND_REC_KEY = 'yoki_fund_records';
-    const FUND_TYPES = ['股票型', '债券型', '货币型', '混合型', 'QDII海外'];
-    let fundData = { funds: [], navHistory: {} };
+    // ================= 财富风向标（基金持仓管理 · 独立存储） =================
+    const FUND_KEYS = {
+      accounts: 'yoki_fund_accounts',
+      holdings: 'yoki_fund_holdings',
+      daily: 'yoki_fund_daily_records',
+      target: 'yoki_fund_target',
+      settings: 'yoki_fund_settings'
+    };
+    const FUND_TYPES = ['股票型', '混合型', '指数型', '债券型', '货币型', 'QDII'];
+    const TYPE_COLOR = { '股票型':'bg-red-50 text-red-400', '混合型':'bg-purple-50 text-purple-400', '指数型':'bg-blue-50 text-blue-400', '债券型':'bg-sky-50 text-sky-400', '货币型':'bg-amber-50 text-amber-500', 'QDII':'bg-teal-50 text-teal-500' };
+    let fundAccounts = [];
+    let fundHoldings = [];
+    let fundDaily = {};
     let fundTarget = {};
-    let fundRecords = [];
-    let txType = 'buy';
+    let fundSettings = { profitColor: 'red', activeAccount: 'all' };
     let _fundChart = null;
+    let _fundCalY = 2026, _fundCalM = 7;
 
+    // ---------- 内置基金名册（200+ 常见 A 股 / QDII 基金） ----------
+    const FUND_ROSTER = [
+      { code: '005827', name: '易方达蓝筹精选混合', type: '混合型', theme: '消费' },
+      { code: '110011', name: '易方达中小盘混合', type: '混合型', theme: '消费' },
+      { code: '001856', name: '易方达优质精选混合', type: '混合型', theme: '均衡' },
+      { code: '110022', name: '易方达消费行业股票', type: '股票型', theme: '消费' },
+      { code: '003095', name: '中欧医疗健康混合A', type: '混合型', theme: '医疗' },
+      { code: '003096', name: '中欧医疗健康混合C', type: '混合型', theme: '医疗' },
+      { code: '001938', name: '中欧时代先锋股票A', type: '股票型', theme: '科技' },
+      { code: '166005', name: '中欧价值发现混合A', type: '混合型', theme: '均衡' },
+      { code: '001811', name: '中欧明睿新常态混合A', type: '混合型', theme: '科技' },
+      { code: '161005', name: '富国天惠成长混合A', type: '混合型', theme: '均衡' },
+      { code: '100020', name: '富国天益价值混合A', type: '混合型', theme: '均衡' },
+      { code: '519915', name: '富国消费主题混合A', type: '混合型', theme: '消费' },
+      { code: '100032', name: '富国中证红利指数A', type: '指数型', theme: '红利' },
+      { code: '260108', name: '景顺长城新兴成长混合', type: '混合型', theme: '消费' },
+      { code: '162605', name: '景顺长城鼎益混合', type: '混合型', theme: '消费' },
+      { code: '007412', name: '景顺长城绩优成长', type: '混合型', theme: '消费' },
+      { code: '163406', name: '兴全合润混合A', type: '混合型', theme: '均衡' },
+      { code: '163402', name: '兴全趋势投资混合', type: '混合型', theme: '均衡' },
+      { code: '163415', name: '兴全商业模式优选', type: '混合型', theme: '均衡' },
+      { code: '340007', name: '兴全社会责任混合', type: '混合型', theme: '科技' },
+      { code: '007119', name: '睿远成长价值混合A', type: '混合型', theme: '均衡' },
+      { code: '008969', name: '睿远均衡价值三年A', type: '混合型', theme: '均衡' },
+      { code: '270002', name: '广发稳健增长混合A', type: '混合型', theme: '均衡' },
+      { code: '005911', name: '广发双擎升级混合A', type: '混合型', theme: '科技' },
+      { code: '002939', name: '广发创新升级混合', type: '混合型', theme: '科技' },
+      { code: '162703', name: '广发小盘成长混合', type: '混合型', theme: '科技' },
+      { code: '004851', name: '广发医疗保健股票A', type: '股票型', theme: '医疗' },
+      { code: '000001', name: '华夏成长混合', type: '混合型', theme: '均衡' },
+      { code: '002001', name: '华夏回报混合A', type: '混合型', theme: '均衡' },
+      { code: '002851', name: '南方品质优选灵活', type: '混合型', theme: '消费' },
+      { code: '202101', name: '南方宝元债券A', type: '债券型', theme: '债券' },
+      { code: '000251', name: '工银瑞信金融地产混合A', type: '混合型', theme: '金融' },
+      { code: '001717', name: '工银瑞信前沿医疗股票A', type: '股票型', theme: '医疗' },
+      { code: '001714', name: '工银瑞信文体产业股票A', type: '股票型', theme: '科技' },
+      { code: '000083', name: '汇添富消费升级混合', type: '混合型', theme: '消费' },
+      { code: '519069', name: '汇添富价值精选混合A', type: '混合型', theme: '均衡' },
+      { code: '006113', name: '汇添富创新医药主题混合', type: '混合型', theme: '医疗' },
+      { code: '000248', name: '汇添富中证主要消费ETF联接', type: '指数型', theme: '消费' },
+      { code: '000854', name: '鹏华养老产业股票', type: '股票型', theme: '消费' },
+      { code: '003547', name: '鹏华丰禄债券', type: '债券型', theme: '债券' },
+      { code: '206009', name: '鹏华新兴产业混合', type: '混合型', theme: '均衡' },
+      { code: '050027', name: '博时信用债纯债A', type: '债券型', theme: '债券' },
+      { code: '160505', name: '博时主题行业混合', type: '混合型', theme: '均衡' },
+      { code: '002610', name: '博时黄金ETF联接A', type: '指数型', theme: '黄金' },
+      { code: '180012', name: '银华富裕主题混合', type: '混合型', theme: '消费' },
+      { code: '005794', name: '银华心怡灵活配置', type: '混合型', theme: '科技' },
+      { code: '180031', name: '银华中小盘混合', type: '混合型', theme: '科技' },
+      { code: '040035', name: '华安逆向策略混合A', type: '混合型', theme: '均衡' },
+      { code: '001071', name: '华安媒体互联网混合A', type: '混合型', theme: '科技' },
+      { code: '000172', name: '华泰柏瑞量化增强A', type: '指数型', theme: '宽基指数' },
+      { code: '012679', name: '华泰柏瑞中证光伏产业ETF联接A', type: '指数型', theme: '新能源' },
+      { code: '012362', name: '国泰中证全指证券公司ETF联接A', type: '指数型', theme: '券商' },
+      { code: '001542', name: '国泰互联网+股票', type: '股票型', theme: '科技' },
+      { code: '005669', name: '前海开源公用事业股票', type: '股票型', theme: '新能源' },
+      { code: '000689', name: '前海开源新经济混合A', type: '混合型', theme: '新能源' },
+      { code: '001103', name: '前海开源中国稀缺资产', type: '混合型', theme: '消费' },
+      { code: '000628', name: '大成高新技术产业股票A', type: '股票型', theme: '科技' },
+      { code: '090018', name: '大成新锐产业混合', type: '混合型', theme: '均衡' },
+      { code: '002190', name: '农银汇理新能源主题', type: '混合型', theme: '新能源' },
+      { code: '320007', name: '诺安成长混合', type: '混合型', theme: '半导体' },
+      { code: '002560', name: '诺安和鑫灵活配置', type: '混合型', theme: '半导体' },
+      { code: '519674', name: '银河创新成长混合A', type: '混合型', theme: '半导体' },
+      { code: '002542', name: '长城久鼎混合A', type: '混合型', theme: '均衡' },
+      { code: '000727', name: '融通健康产业灵活', type: '混合型', theme: '医疗' },
+      { code: '006551', name: '中庚价值领航混合', type: '混合型', theme: '均衡' },
+      { code: '007130', name: '中庚小盘价值股票', type: '股票型', theme: '均衡' },
+      { code: '519732', name: '交银定期支付双息', type: '混合型', theme: '均衡' },
+      { code: '519772', name: '交银新生活力灵活', type: '混合型', theme: '均衡' },
+      { code: '519688', name: '交银施罗德精选', type: '混合型', theme: '均衡' },
+      { code: '002803', name: '东方红沪港深混合', type: '混合型', theme: '港股' },
+      { code: '000619', name: '东方红产业升级混合', type: '混合型', theme: '均衡' },
+      { code: '000577', name: '安信价值精选股票', type: '股票型', theme: '均衡' },
+      { code: '720001', name: '财通价值动量混合', type: '混合型', theme: '均衡' },
+      { code: '001487', name: '宝盈优势产业混合A', type: '混合型', theme: '科技' },
+      { code: '161222', name: '国投瑞银瑞利混合', type: '混合型', theme: '均衡' },
+      { code: '001500', name: '泓德远见回报混合', type: '混合型', theme: '均衡' },
+      { code: '161903', name: '万家行业优选混合', type: '混合型', theme: '科技' },
+      { code: '001631', name: '天弘中证食品饮料指数A', type: '指数型', theme: '白酒' },
+      { code: '000961', name: '天弘沪深300ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '001594', name: '天弘中证银行指数A', type: '指数型', theme: '银行' },
+      { code: '000198', name: '天弘余额宝货币', type: '货币型', theme: '货币' },
+      { code: '000359', name: '易方达易理财货币', type: '货币型', theme: '货币' },
+      { code: '000719', name: '南方现金通货币E', type: '货币型', theme: '货币' },
+      { code: '482002', name: '工银货币', type: '货币型', theme: '货币' },
+      { code: '003003', name: '华夏现金增利货币A', type: '货币型', theme: '货币' },
+      { code: '002758', name: '建信现金增利货币', type: '货币型', theme: '货币' },
+      { code: '000475', name: '广发天天利货币E', type: '货币型', theme: '货币' },
+      { code: '000397', name: '汇添富全额宝货币', type: '货币型', theme: '货币' },
+      { code: '050003', name: '博时现金收益货币A', type: '货币型', theme: '货币' },
+      { code: '110026', name: '易方达创业板ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '110003', name: '易方达上证50指数A', type: '指数型', theme: '宽基指数' },
+      { code: '161024', name: '富国中证军工指数A', type: '指数型', theme: '军工' },
+      { code: '161028', name: '富国中证新能源汽车指数', type: '指数型', theme: '新能源' },
+      { code: '161029', name: '富国中证银行指数A', type: '指数型', theme: '银行' },
+      { code: '012605', name: '国泰中证军工ETF联接A', type: '指数型', theme: '军工' },
+      { code: '012810', name: '国泰中证钢铁ETF联接A', type: '指数型', theme: '钢铁' },
+      { code: '160222', name: '国泰国证食品饮料行业', type: '指数型', theme: '白酒' },
+      { code: '161720', name: '招商中证全指证券公司指数', type: '指数型', theme: '券商' },
+      { code: '012043', name: '鹏华中证酒ETF联接A', type: '指数型', theme: '白酒' },
+      { code: '001180', name: '广发中证全指医药卫生ETF联接A', type: '指数型', theme: '医疗' },
+      { code: '005223', name: '广发中证基建工程ETF联接A', type: '指数型', theme: '基建' },
+      { code: '162412', name: '华宝中证医疗ETF联接A', type: '指数型', theme: '医疗' },
+      { code: '240019', name: '华宝中证银行ETF联接A', type: '指数型', theme: '银行' },
+      { code: '006098', name: '华宝中证全指证券ETF联接A', type: '指数型', theme: '券商' },
+      { code: '501009', name: '汇添富中证生物科技指数A', type: '指数型', theme: '医疗' },
+      { code: '006327', name: '易方达中证海外中国互联网50ETF联接A', type: '指数型', theme: '中概' },
+      { code: '164906', name: '交银中证海外中国互联网', type: '指数型', theme: '中概' },
+      { code: '000071', name: '华夏恒生ETF联接A', type: '指数型', theme: '港股' },
+      { code: '013308', name: '易方达恒生科技ETF联接A', type: '指数型', theme: '港股' },
+      { code: '040046', name: '华安纳斯达克100ETF联接A', type: '指数型', theme: '美股' },
+      { code: '270042', name: '广发纳斯达克100ETF联接A', type: '指数型', theme: '美股' },
+      { code: '000834', name: '大成纳斯达克100指数', type: '指数型', theme: '美股' },
+      { code: '000307', name: '易方达黄金ETF联接A', type: '指数型', theme: '黄金' },
+      { code: '000216', name: '华安黄金易ETF联接A', type: '指数型', theme: '黄金' },
+      { code: '160216', name: '国泰大宗商品', type: '指数型', theme: '商品' },
+      { code: '501018', name: '南方原油', type: '指数型', theme: '商品' },
+      { code: '160723', name: '嘉实原油', type: '指数型', theme: '商品' },
+      { code: '320013', name: '诺安全球黄金', type: '指数型', theme: '黄金' },
+      { code: '161725', name: '招商中证白酒指数A', type: '指数型', theme: '白酒' },
+      { code: '161726', name: '招商国证生物医药指数A', type: '指数型', theme: '医疗' },
+      { code: '161032', name: '招商中证煤炭等权指数', type: '指数型', theme: '煤炭' },
+      { code: '012768', name: '华夏中证动漫游戏ETF联接A', type: '指数型', theme: '游戏' },
+      { code: '012643', name: '招商中证红利ETF联接A', type: '指数型', theme: '红利' },
+      { code: '001051', name: '华夏上证50ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '000051', name: '华夏沪深300ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '001052', name: '华夏中证500ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '160119', name: '南方中证500ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '004854', name: '广发中证全指汽车', type: '指数型', theme: '汽车' },
+      { code: '501059', name: '西部利得中证国企红利', type: '指数型', theme: '红利' },
+      { code: '110017', name: '易方达增强回报债券A', type: '债券型', theme: '债券' },
+      { code: '000171', name: '易方达裕丰回报债券', type: '债券型', theme: '债券' },
+      { code: '485111', name: '工银瑞信双利债券A', type: '债券型', theme: '债券' },
+      { code: '217022', name: '招商产业债券A', type: '债券型', theme: '债券' },
+      { code: '161713', name: '招商信用添利债券', type: '债券型', theme: '债券' },
+      { code: '270025', name: '广发聚利债券A', type: '债券型', theme: '债券' },
+      { code: '519680', name: '交银增利债券A', type: '债券型', theme: '债券' },
+      { code: '530008', name: '建信稳定增利债券C', type: '债券型', theme: '债券' },
+      { code: '380009', name: '中银稳健添利债券A', type: '债券型', theme: '债券' },
+      { code: '000286', name: '银华信用季季红债券A', type: '债券型', theme: '债券' },
+      { code: '420002', name: '天弘永利债券A', type: '债券型', theme: '债券' },
+      { code: '166008', name: '中欧增强回报债券A', type: '债券型', theme: '债券' },
+      { code: '233012', name: '大摩多元收益债券A', type: '债券型', theme: '债券' },
+      { code: '519977', name: '长信可转债债券A', type: '债券型', theme: '债券' },
+      { code: '003949', name: '兴全稳泰债券A', type: '债券型', theme: '债券' },
+      { code: '110027', name: '易方达安心回报债券A', type: '债券型', theme: '债券' },
+      { code: '001751', name: '嘉实新兴产业股票', type: '股票型', theme: '科技' },
+      { code: '003984', name: '嘉实新能源新材料A', type: '股票型', theme: '新能源' },
+      { code: '070019', name: '嘉实价值优势混合', type: '混合型', theme: '均衡' },
+      { code: '118001', name: '易方达亚洲精选股票', type: 'QDII', theme: '港股' },
+      { code: '100061', name: '富国中国中小盘混合', type: 'QDII', theme: '港股' },
+      { code: '002891', name: '华夏移动互联混合', type: 'QDII', theme: '科技' },
+      { code: '001513', name: '易方达信息产业混合', type: '混合型', theme: '科技' },
+      { code: '100018', name: '富国天利增长债券', type: '债券型', theme: '债券' },
+      { code: '050011', name: '博时信用债券A', type: '债券型', theme: '债券' },
+      { code: '110008', name: '易方达稳健收益债券A', type: '债券型', theme: '债券' },
+      { code: '000107', name: '富国稳健增强债券A', type: '债券型', theme: '债券' },
+      { code: '519718', name: '交银纯债债券A', type: '债券型', theme: '债券' },
+      { code: '000013', name: '易方达天天理财货币A', type: '货币型', theme: '货币' },
+      { code: '000509', name: '广发钱袋子货币', type: '货币型', theme: '货币' },
+      { code: '000330', name: '汇添富现金宝货币', type: '货币型', theme: '货币' },
+      { code: '000638', name: '富国富钱包货币', type: '货币型', theme: '货币' },
+      { code: '000343', name: '华夏财富宝货币', type: '货币型', theme: '货币' },
+      { code: '000793', name: '鹏华增值宝货币', type: '货币型', theme: '货币' },
+      { code: '000572', name: '中银活期宝货币', type: '货币型', theme: '货币' },
+      { code: '000687', name: '建信嘉薪宝货币', type: '货币型', theme: '货币' },
+      { code: '001092', name: '广发中证养老产业指数A', type: '指数型', theme: '均衡' },
+      { code: '001550', name: '天弘中证医药100A', type: '指数型', theme: '医疗' },
+      { code: '161034', name: '富国中证体育产业指数', type: '指数型', theme: '其他' },
+      { code: '110020', name: '易方达沪深300ETF联接A', type: '指数型', theme: '宽基指数' },
+      { code: '100038', name: '富国低碳环保混合', type: '混合型', theme: '新能源' },
+      { code: '100056', name: '富国低碳新经济混合A', type: '混合型', theme: '新能源' },
+      { code: '163110', name: '申万菱信量化小盘股票', type: '股票型', theme: '均衡' },
+      { code: '002692', name: '富国创新科技混合A', type: '混合型', theme: '科技' },
+      { code: '004997', name: '广发高端制造股票A', type: '股票型', theme: '新能源' },
+      { code: '006267', name: '中银医疗保健混合A', type: '混合型', theme: '医疗' },
+      { code: '008286', name: '易方达研究精选股票', type: '股票型', theme: '均衡' },
+      { code: '010198', name: '易方达竞争优势企业混合', type: '混合型', theme: '均衡' },
+      { code: '013395', name: '富国中证芯片ETF联接A', type: '指数型', theme: '半导体' },
+      { code: '014808', name: '招商中证电池主题ETF联接A', type: '指数型', theme: '新能源' },
+      { code: '015061', name: '富国中证港股通互联网ETF联接A', type: '指数型', theme: '港股' },
+      { code: '016074', name: '创金合信软件指数A', type: '指数型', theme: '科技' },
+      { code: '017102', name: '大摩数字经济混合A', type: '混合型', theme: '科技' },
+      { code: '018125', name: '永赢先进制造智选混合A', type: '混合型', theme: '新能源' },
+      { code: '019670', name: '国泰中证半导体材料ETF联接A', type: '指数型', theme: '半导体' },
+      { code: '001039', name: '嘉实环保低碳股票', type: '股票型', theme: '新能源' },
+      { code: '003834', name: '华夏能源革新股票', type: '股票型', theme: '新能源' },
+      { code: '001410', name: '信达澳亚新能源产业股票', type: '股票型', theme: '新能源' },
+      { code: '000478', name: '建信中证500指数增强A', type: '指数型', theme: '宽基指数' },
+      { code: '001556', name: '天弘中证500指数A', type: '指数型', theme: '宽基指数' },
+      { code: '002670', name: '国投瑞银新兴产业混合', type: '混合型', theme: '均衡' },
+      { code: '001182', name: '易方达安心回馈混合', type: '混合型', theme: '均衡' },
+      { code: '001875', name: '前海开源优质企业6个月持有', type: '混合型', theme: '均衡' },
+      { code: '519062', name: '海富通阿尔法对冲混合', type: '混合型', theme: '均衡' },
+      { code: '000527', name: '南方新优享灵活', type: '混合型', theme: '均衡' },
+      { code: '001668', name: '圆信永丰优加生活', type: '股票型', theme: '消费' },
+      { code: '519002', name: '华安安信消费服务', type: '混合型', theme: '消费' },
+      { code: '001532', name: '华安文体健康主题', type: '混合型', theme: '科技' },
+      { code: '001649', name: '汇丰晋信智造先锋', type: '股票型', theme: '新能源' },
+      { code: '004814', name: '中欧红利优享', type: '混合型', theme: '红利' },
+      { code: '001564', name: '东方红优势精选', type: '混合型', theme: '均衡' },
+      { code: '001510', name: '中海环保新能源', type: '混合型', theme: '新能源' },
+      { code: '001583', name: '安信新常态沪港深精选', type: '股票型', theme: '港股' },
+      { code: '002340', name: '富国价值优势混合', type: '混合型', theme: '均衡' },
+      { code: '000979', name: '景顺长城沪港深精选', type: '股票型', theme: '港股' }
+    ];
+
+    // ---------- 存取 ----------
     function loadFundData() {
-      try { const r = localStorage.getItem(FUND_KEY); if (r) fundData = JSON.parse(r); } catch (e) {}
-      if (!fundData || typeof fundData !== 'object') fundData = {};
-      if (!Array.isArray(fundData.funds)) fundData.funds = [];
-      if (!fundData.navHistory || typeof fundData.navHistory !== 'object') fundData.navHistory = {};
-      try { const r = localStorage.getItem(FUND_TARGET_KEY); if (r) fundTarget = JSON.parse(r); } catch (e) {}
+      try { const r = localStorage.getItem(FUND_KEYS.accounts); if (r) fundAccounts = JSON.parse(r); } catch (e) {}
+      if (!Array.isArray(fundAccounts)) fundAccounts = [];
+      try { const r = localStorage.getItem(FUND_KEYS.holdings); if (r) fundHoldings = JSON.parse(r); } catch (e) {}
+      if (!Array.isArray(fundHoldings)) fundHoldings = [];
+      fundHoldings.forEach(h => { if (!h.navHistory || typeof h.navHistory !== 'object') h.navHistory = {}; });
+      try { const r = localStorage.getItem(FUND_KEYS.daily); if (r) fundDaily = JSON.parse(r); } catch (e) {}
+      if (!fundDaily || typeof fundDaily !== 'object') fundDaily = {};
+      try { const r = localStorage.getItem(FUND_KEYS.target); if (r) fundTarget = JSON.parse(r); } catch (e) {}
       if (!fundTarget || typeof fundTarget !== 'object') fundTarget = {};
-      try { const r = localStorage.getItem(FUND_REC_KEY); if (r) fundRecords = JSON.parse(r); } catch (e) {}
-      if (!Array.isArray(fundRecords)) fundRecords = [];
+      try { const r = localStorage.getItem(FUND_KEYS.settings); if (r) fundSettings = Object.assign({ profitColor: 'red', activeAccount: 'all' }, JSON.parse(r)); } catch (e) {}
+      // 兼容旧版数据结构迁移
+      if (!fundAccounts.length && !fundHoldings.length) {
+        try {
+          const old = localStorage.getItem('yoki_fund_data');
+          if (old) {
+            const od = JSON.parse(old);
+            if (od && od.funds && od.funds.length) {
+              const acc = { id: 'acc_default', name: '我的账户' };
+              fundAccounts = [acc];
+              fundHoldings = od.funds.map(f => ({
+                id: (f.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6))),
+                accountId: acc.id, code: f.code || '', name: f.name || '未命名基金',
+                type: f.type || '混合型', theme: f.theme || '其他',
+                shares: f.shares || 0, costPrice: f.costPrice || 0, currentPrice: f.currentPrice || 0,
+                navHistory: f.navHistory || {}
+              }));
+            }
+          }
+          const ot = localStorage.getItem('yoki_fund_target'); if (ot) { try { fundTarget = JSON.parse(ot) || {}; } catch (e) {} }
+          const odr = localStorage.getItem('yoki_fund_daily_records'); if (odr) { try { const d = JSON.parse(odr); if (d && typeof d === 'object') fundDaily = d; } catch (e) {} }
+        } catch (e) {}
+      }
+      if (!fundAccounts.length) fundAccounts = [{ id: 'acc_default', name: '我的账户' }];
+      const now = new Date(); _fundCalY = now.getFullYear(); _fundCalM = now.getMonth();
     }
-    function saveFund() { try { localStorage.setItem(FUND_KEY, JSON.stringify(fundData)); } catch (e) {} }
-    function saveFundTarget() { try { localStorage.setItem(FUND_TARGET_KEY, JSON.stringify(fundTarget)); } catch (e) {} }
-    function saveFundRecords() { try { localStorage.setItem(FUND_REC_KEY, JSON.stringify(fundRecords)); } catch (e) {} }
+    function saveFundAccounts() { try { localStorage.setItem(FUND_KEYS.accounts, JSON.stringify(fundAccounts)); } catch (e) {} }
+    function saveFundHoldings() { try { localStorage.setItem(FUND_KEYS.holdings, JSON.stringify(fundHoldings)); } catch (e) {} }
+    function saveFundDaily() { try { localStorage.setItem(FUND_KEYS.daily, JSON.stringify(fundDaily)); } catch (e) {} }
+    function saveFundTarget() { try { localStorage.setItem(FUND_KEYS.target, JSON.stringify(fundTarget)); } catch (e) {} }
+    function saveFundSettings() { try { localStorage.setItem(FUND_KEYS.settings, JSON.stringify(fundSettings)); } catch (e) {} }
 
-    function _num(id) { const v = parseFloat(document.getElementById(id)?.value); return isFinite(v) ? v : 0; }
-    function _val(id) { return (document.getElementById(id)?.value || '').trim(); }
+    function _num(id) { const el = document.getElementById(id); const v = el ? parseFloat(el.value) : NaN; return isFinite(v) ? v : 0; }
+    function _val(id) { const el = document.getElementById(id); return (el && el.value || '').trim(); }
     function fmtY(n) { return '¥' + (Number(n) || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-    function pnlColor(v) { return v > 0 ? '#E8847A' : (v < 0 ? '#4CAF50' : '#9CA3AF'); } // 红涨 绿跌（A股习惯）
+    function pnlColor(v) {
+      const profitIsRed = fundSettings.profitColor !== 'green';
+      if (v > 0) return profitIsRed ? '#E8847A' : '#4CAF50';
+      if (v < 0) return profitIsRed ? '#4CAF50' : '#E8847A';
+      return '#9CA3AF';
+    }
     function pctStr(v) { return (v > 0 ? '+' : '') + (Number(v) || 0).toFixed(2) + '%'; }
     function yesterdayKey() { const d = new Date(); d.setDate(d.getDate() - 1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function scopeName(scope) { if (scope === 'all' || !scope) return '全部账户'; const a = fundAccounts.find(x => x.id === scope); return a ? a.name : '未知账户'; }
+    function fundById(id) { return fundHoldings.find(h => h.id === id); }
 
-    function fundTotals() {
-      const funds = fundData.funds;
-      let totalAssets = 0, totalCost = 0;
-      funds.forEach(f => {
-        const sh = Number(f.shares) || 0;
-        totalAssets += (Number(f.currentPrice) || 0) * sh;
-        totalCost += (Number(f.costPrice) || 0) * sh;
+    // ---------- 计算 ----------
+    function fundTotals(scope) {
+      let ta = 0, tc = 0;
+      fundHoldings.forEach(h => {
+        if (scope && scope !== 'all' && h.accountId !== scope) return;
+        const sh = Number(h.shares) || 0;
+        ta += (Number(h.currentPrice) || 0) * sh;
+        tc += (Number(h.costPrice) || 0) * sh;
       });
-      const pnl = totalAssets - totalCost;
-      const returnPct = totalCost > 0 ? (pnl / totalCost * 100) : 0;
-      return { totalAssets, totalCost, pnl, returnPct };
+      const pnl = ta - tc;
+      return { totalAssets: ta, totalCost: tc, pnl, returnPct: tc > 0 ? pnl / tc * 100 : 0 };
     }
-    function fundTodayPnl() {
-      const today = todayKey();
-      const prev = fundData.navHistory[yesterdayKey()];
-      if (prev == null) return null;
-      return fundTotals().totalAssets - prev;
+    function snapshotDaily() {
+      const day = { all: 0 };
+      fundAccounts.forEach(a => { day[a.id] = 0; });
+      fundHoldings.forEach(h => {
+        const v = (Number(h.currentPrice) || 0) * (Number(h.shares) || 0);
+        day.all += v;
+        if (day[h.accountId] != null) day[h.accountId] += v;
+      });
+      fundDaily[todayKey()] = day;
     }
-    function snapshotNav() {
-      fundData.navHistory[todayKey()] = fundTotals().totalAssets;
+    function fundTodayPnl(scope) {
+      scope = scope || 'all';
+      const prev = fundDaily[yesterdayKey()];
+      if (!prev || prev[scope] == null) return null;
+      return fundTotals(scope).totalAssets - prev[scope];
     }
-    function fundById(id) { return fundData.funds.find(f => f.id === id); }
 
-    // ---------- 总览 ----------
+    // ---------- 总渲染 ----------
     function renderFund() {
-      const { totalAssets, pnl, returnPct } = fundTotals();
+      const scope = fundSettings.activeAccount || 'all';
+      const t = fundTotals(scope);
       const taEl = document.getElementById('fundTotalAssets');
       const tpEl = document.getElementById('fundTodayPnl');
       const rpEl = document.getElementById('fundReturnPct');
-      if (taEl) taEl.textContent = fmtY(totalAssets);
+      const tcEl = document.getElementById('fundTotalCost');
+      const scEl = document.getElementById('fundOverviewScope');
+      if (taEl) taEl.textContent = fmtY(t.totalAssets);
+      if (tcEl) tcEl.textContent = fmtY(t.totalCost);
+      if (scEl) scEl.textContent = '总览 · ' + scopeName(scope);
       if (tpEl) {
-        const t = fundTodayPnl();
-        if (t == null) { tpEl.textContent = '—'; tpEl.style.color = '#9CA3AF'; }
-        else { tpEl.textContent = (t >= 0 ? '+' : '') + fmtY(t); tpEl.style.color = pnlColor(t); }
+        const tp = fundTodayPnl(scope);
+        if (tp == null) { tpEl.textContent = '—'; tpEl.style.color = '#9CA3AF'; }
+        else { tpEl.textContent = (tp >= 0 ? '+' : '') + fmtY(tp); tpEl.style.color = pnlColor(tp); }
       }
-      if (rpEl) { rpEl.textContent = pctStr(returnPct); rpEl.style.color = pnlColor(pnl); }
-
-      renderFundHoldings();
-      renderFundRebalance();
-      renderFundTx();
-      renderFundTrend();
+      if (rpEl) { rpEl.textContent = pctStr(t.returnPct); rpEl.style.color = pnlColor(t.pnl); }
+      renderFundAccountTabs();
+      renderFundHoldings(scope);
+      renderFundRebalance(scope);
+      renderFundConcentration(scope);
+      renderFundTrend(scope);
+      renderFundCalendar();
       const hint = document.getElementById('fundChartHint');
-      if (hint) hint.style.display = Object.keys(fundData.navHistory).length ? 'none' : 'block';
+      if (hint) hint.style.display = Object.keys(fundDaily).length ? 'none' : 'block';
     }
 
-    // ---------- 持仓明细 ----------
-    function renderFundHoldings() {
+    function renderFundAccountTabs() {
+      const el = document.getElementById('fundAccountTabs');
+      if (!el) return;
+      const mk = (id, label) => {
+        const active = (fundSettings.activeAccount || 'all') === id;
+        return `<button onclick="setFundAccount('${id}')" class="flex-shrink-0 px-3 py-1.5 rounded-2xl text-xs font-semibold shadow-sm ${active ? 'bg-macaron text-gray-700' : 'bg-white/70 text-gray-600 hover:bg-white'}">${label}</button>`;
+      };
+      let html = mk('all', '📊 全部');
+      fundAccounts.forEach(a => { html += mk(a.id, escapeHtml(a.name)); });
+      html += `<button onclick="openFundAccountModal()" class="flex-shrink-0 px-3 py-1.5 rounded-2xl bg-white/70 hover:bg-white text-gray-600 text-xs font-semibold shadow-sm">➕ 账户</button>`;
+      el.innerHTML = html;
+    }
+    function setFundAccount(id) { fundSettings.activeAccount = id; saveFundSettings(); renderFund(); }
+
+    function renderFundHoldings(scope) {
       const el = document.getElementById('fundHoldings');
       if (!el) return;
-      if (!fundData.funds.length) {
-        el.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">还没有基金，点击右上角「➕ 添加基金」开始记录吧～</div>';
-        return;
-      }
-      el.innerHTML = fundData.funds.map(f => {
-        const sh = Number(f.shares) || 0;
-        const val = (Number(f.currentPrice) || 0) * sh;
-        const cost = (Number(f.costPrice) || 0) * sh;
+      const list = fundHoldings.filter(h => !scope || scope === 'all' || h.accountId === scope);
+      const cnt = document.getElementById('fundHoldCount');
+      if (cnt) cnt.textContent = list.length ? `· ${list.length} 只` : '';
+      if (!list.length) { el.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">该账户下还没有基金，点「➕ 添加基金」开始记录吧～</div>'; return; }
+      el.innerHTML = list.map(h => {
+        const sh = Number(h.shares) || 0;
+        const val = (Number(h.currentPrice) || 0) * sh;
+        const cost = (Number(h.costPrice) || 0) * sh;
         const pnl = val - cost;
         const pct = cost > 0 ? (pnl / cost * 100) : 0;
-        const typeBadge = { '股票型': 'bg-red-50 text-red-400', '债券型': 'bg-blue-50 text-blue-400', '货币型': 'bg-amber-50 text-amber-500', '混合型': 'bg-purple-50 text-purple-400', 'QDII海外': 'bg-teal-50 text-teal-500' }[f.type] || 'bg-gray-100 text-gray-500';
+        const acc = fundAccounts.find(a => a.id === h.accountId);
+        const typeBadge = TYPE_COLOR[h.type] || 'bg-gray-100 text-gray-500';
         return `
           <div class="rounded-2xl bg-white/60 border border-white p-3 flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2 min-w-0">
-                <span class="font-semibold text-gray-700 truncate">${escapeHtml(f.name)}</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded-full ${typeBadge}">${f.type || '其他'}</span>
+                <span class="font-semibold text-gray-700 truncate">${escapeHtml(h.name)}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full ${typeBadge}">${h.type || '其他'}</span>
+                ${h.code ? `<span class="text-[10px] text-gray-400">${h.code}</span>` : ''}
               </div>
-              <button onclick="deleteFund('${f.id}')" class="text-gray-400 hover:text-red-400 text-sm" title="删除">🗑️</button>
+              <div class="flex items-center gap-2">
+                <button onclick="openEditFundModal('${h.id}')" class="text-gray-400 hover:text-sky text-sm" title="编辑">✏️</button>
+                <button onclick="deleteFund('${h.id}')" class="text-gray-400 hover:text-red-400 text-sm" title="删除">🗑️</button>
+              </div>
             </div>
+            ${fundAccounts.length > 1 ? `<div class="text-[11px] text-gray-400">账户：${escapeHtml(acc ? acc.name : '未知')}</div>` : ''}
             <div class="grid grid-cols-4 gap-1 text-center text-[11px]">
               <div><div class="text-gray-400">份额</div><div class="font-semibold text-gray-700">${sh}</div></div>
-              <div><div class="text-gray-400">成本</div><div class="font-semibold text-gray-700">${Number(f.costPrice) || 0}</div></div>
-              <div><div class="text-gray-400">现价</div><div class="font-semibold text-gray-700">${Number(f.currentPrice) || 0}</div></div>
+              <div><div class="text-gray-400">成本</div><div class="font-semibold text-gray-700">${Number(h.costPrice) || 0}</div></div>
+              <div><div class="text-gray-400">现价</div><div class="font-semibold text-gray-700">${Number(h.currentPrice) || 0}</div></div>
               <div><div class="text-gray-400">市值</div><div class="font-semibold text-gray-700">${fmtY(val).replace('¥', '')}</div></div>
             </div>
             <div class="text-right text-sm font-semibold" style="color:${pnlColor(pnl)}">${pnl >= 0 ? '+' : ''}${fmtY(pnl).replace('¥', '')}（${pctStr(pct)}）</div>
@@ -4343,44 +4799,31 @@
     }
 
     // ---------- 调仓建议 ----------
-    function renderFundRebalance() {
+    function renderFundRebalance(scope) {
       const listEl = document.getElementById('fundRebalanceList');
       const tipEl = document.getElementById('fundAdvice');
       if (!listEl || !tipEl) return;
-      const T = fundTotals().totalAssets || 0;
+      const T = fundTotals(scope).totalAssets || 0;
       const keys = FUND_TYPES.filter(t => (Number(fundTarget[t]) || 0) > 0);
       if (!keys.length) {
         listEl.innerHTML = '';
-        tipEl.innerHTML = '<div class="text-sm text-gray-500">🧭 还没设置目标仓位。点击右上角「⚙️ 设置目标仓位」设定各类型占比，系统会自动给出调仓建议。</div>';
+        tipEl.innerHTML = '<div class="text-sm text-gray-500">🧭 还没设置目标仓位。点击「⚙️ 目标仓位」设定各类型占比，系统会自动给出调仓建议。</div>';
         return;
       }
       const rows = keys.map(type => {
         const targetPct = Number(fundTarget[type]) || 0;
         let actual = 0;
-        fundData.funds.forEach(f => { if (f.type === type) actual += (Number(f.currentPrice) || 0) * (Number(f.shares) || 0); });
+        fundHoldings.forEach(h => { if ((!scope || scope === 'all' || h.accountId === scope) && h.type === type) actual += (Number(h.currentPrice) || 0) * (Number(h.shares) || 0); });
         const actualPct = T > 0 ? (actual / T * 100) : 0;
         const dev = actualPct - targetPct;
         const targetAmt = T * targetPct / 100;
         const diffAmt = actual - targetAmt;
         let status, color, advice;
-        if (Math.abs(dev) < 5) {
-          status = '合理'; color = '#4CAF50';
-          advice = `✅ 仓位合理（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），无需调仓`;
-        } else if (dev > 0) {
-          status = '超标'; color = '#E8847A';
-          advice = `⚠️ 超标 ${dev.toFixed(1)}%（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），建议止盈卖出约 ${fmtY(Math.abs(diffAmt))}`;
-        } else {
-          status = '不足'; color = '#3B82F6';
-          advice = `📥 不足 ${Math.abs(dev).toFixed(1)}%（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），建议加仓买入约 ${fmtY(Math.abs(diffAmt))}`;
-        }
+        if (Math.abs(dev) < 5) { status = '合理'; color = '#4CAF50'; advice = `✅ ${type}仓位合理（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），无需调仓`; }
+        else if (dev > 0) { status = '超标'; color = '#E8847A'; advice = `📈 ${type}占比已达 ${actualPct.toFixed(1)}%（目标 ${targetPct}%），建议适当止盈，卖出部分份额约 ${fmtY(Math.abs(diffAmt))}`; }
+        else { status = '不足'; color = '#3B82F6'; advice = `📉 ${type}占比仅 ${actualPct.toFixed(1)}%（目标 ${targetPct}%），建议逢低加仓约 ${fmtY(Math.abs(diffAmt))}`; }
         return {
-          bar: `<div class="mb-2">
-              <div class="flex items-center justify-between text-xs mb-1"><span class="text-gray-700">${type}</span><span style="color:${color}">${status}（${actualPct.toFixed(1)}% / ${targetPct}%）</span></div>
-              <div class="h-2 rounded-full bg-gray-100 overflow-hidden relative">
-                <div class="h-full rounded-full" style="width:${Math.min(100, actualPct)}%;background:${color}"></div>
-                <div class="absolute top-0 h-full w-0.5 bg-gray-400" style="left:${Math.min(100, targetPct)}%"></div>
-              </div>
-            </div>`,
+          bar: `<div class="mb-2"><div class="flex items-center justify-between text-xs mb-1"><span class="text-gray-700">${type}</span><span style="color:${color}">${status}（${actualPct.toFixed(1)}% / ${targetPct}%）</span></div><div class="h-2 rounded-full bg-gray-100 overflow-hidden relative"><div class="h-full rounded-full" style="width:${Math.min(100, actualPct)}%;background:${color}"></div><div class="absolute top-0 h-full w-0.5 bg-gray-400" style="left:${Math.min(100, targetPct)}%"></div></div></div>`,
           advice: `<div class="text-sm" style="color:${color}">${advice}</div>`
         };
       });
@@ -4388,38 +4831,35 @@
       tipEl.innerHTML = rows.map(r => r.advice).join('<div class="my-1 border-t border-white/60"></div>');
     }
 
-    // ---------- 交易记录 ----------
-    function renderFundTx() {
-      const el = document.getElementById('fundTxList');
+    // ---------- 行业集中度预警 ----------
+    function renderFundConcentration(scope) {
+      const el = document.getElementById('fundConcentration');
       if (!el) return;
-      if (!fundRecords.length) {
-        el.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">还没有交易记录，点击「➕ 记一笔交易」吧。</div>';
-        return;
-      }
-      el.innerHTML = fundRecords.map(r => {
-        const isBuy = r.type === 'buy';
-        const color = isBuy ? '#E8847A' : '#4CAF50';
-        const tag = isBuy ? '买入' : '卖出';
-        return `
-          <div class="rounded-2xl bg-white/60 border border-white p-3 flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold" style="background:${color}22;color:${color}">${tag}</span>
-                <span class="font-semibold text-gray-700 truncate">${escapeHtml(r.fundName)}</span>
-              </div>
-              <div class="text-[11px] text-gray-400 mt-0.5">${r.date} ｜ ${r.shares} 份 @ ${r.price} ｜ ${fmtY(r.amount).replace('¥', '')}${r.note ? ' ｜ ' + escapeHtml(r.note) : ''}</div>
-            </div>
-            <button onclick="deleteTx('${r.id}')" class="text-gray-400 hover:text-red-400 text-sm" title="删除">🗑️</button>
-          </div>`;
-      }).join('');
+      const T = fundTotals(scope).totalAssets || 0;
+      if (T <= 0) { el.innerHTML = ''; return; }
+      const byTheme = {};
+      fundHoldings.forEach(h => {
+        if (scope && scope !== 'all' && h.accountId !== scope) return;
+        const th = h.theme || '其他';
+        byTheme[th] = (byTheme[th] || 0) + (Number(h.currentPrice) || 0) * (Number(h.shares) || 0);
+      });
+      const EXCLUDE = ['货币', '债券', '其他'];
+      const warns = [];
+      Object.keys(byTheme).forEach(th => {
+        if (EXCLUDE.indexOf(th) >= 0) return;
+        const pct = byTheme[th] / T * 100;
+        if (pct > 40) warns.push({ th, pct });
+      });
+      if (!warns.length) { el.innerHTML = ''; return; }
+      el.innerHTML = warns.map(w => `<div class="rounded-2xl bg-amber/15 border border-amber/30 px-3 py-2 text-sm text-amber-600">⚠️ ${escapeHtml(w.th)}主题基金占比已达 ${w.pct.toFixed(1)}%，建议分散配置以降低风险。</div>`).join('');
     }
 
     // ---------- 走势图 ----------
-    function renderFundTrend() {
+    function renderFundTrend(scope) {
       const canvas = document.getElementById('fundTrendChart');
       if (!canvas || typeof Chart === 'undefined') return;
-      const hist = fundData.navHistory || {};
-      const dates = Object.keys(hist).sort().slice(-30);
+      scope = scope || 'all';
+      const dates = Object.keys(fundDaily).sort().slice(-30);
       const ctx = canvas.getContext('2d');
       if (_fundChart) _fundChart.destroy();
       if (!dates.length) {
@@ -4428,55 +4868,214 @@
       }
       _fundChart = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: dates,
-          datasets: [{
-            label: '总资产',
-            data: dates.map(d => hist[d]),
-            borderColor: '#E8847A',
-            backgroundColor: 'rgba(232,132,122,0.15)',
-            fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#E8847A'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => '总资产 ' + fmtY(i.raw) } } },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
-            y: { ticks: { font: { size: 9 }, callback: v => '¥' + v }, grid: { color: 'rgba(0,0,0,0.05)' } }
-          }
+        data: { labels: dates, datasets: [{ label: '总资产', data: dates.map(d => (fundDaily[d] && fundDaily[d][scope] != null) ? fundDaily[d][scope] : 0), borderColor: '#E8847A', backgroundColor: 'rgba(232,132,122,0.15)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#E8847A' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => '总资产 ' + fmtY(i.raw) } } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }, y: { ticks: { font: { size: 9 }, callback: v => '¥' + v }, grid: { color: 'rgba(0,0,0,0.05)' } } } }
+      });
+    }
+
+    // ---------- 收益日历 ----------
+    function fundShiftMonth(delta) { _fundCalM += delta; if (_fundCalM < 0) { _fundCalM = 11; _fundCalY--; } else if (_fundCalM > 11) { _fundCalM = 0; _fundCalY++; } renderFundCalendar(); }
+    function prevDateKey(d) { const x = new Date(d + 'T00:00:00'); x.setDate(x.getDate() - 1); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; }
+    function renderFundCalendar() {
+      const grid = document.getElementById('fundCalGrid');
+      const monthEl = document.getElementById('fundCalMonth');
+      const detail = document.getElementById('fundCalDetail');
+      if (!grid) return;
+      const scope = fundSettings.activeAccount || 'all';
+      const y = _fundCalY, m = _fundCalM;
+      if (monthEl) monthEl.textContent = `${y}-${String(m+1).padStart(2,'0')}`;
+      const first = new Date(y, m, 1);
+      const startDay = first.getDay();
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      let html = '';
+      for (let i = 0; i < startDay; i++) html += '<div></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayObj = fundDaily[key];
+        let dot = '', title = '';
+        if (dayObj && dayObj[scope] != null) {
+          const prev = fundDaily[prevDateKey(key)];
+          if (prev && prev[scope] != null) {
+            const pnl = dayObj[scope] - prev[scope];
+            if (pnl > 0.0001 || pnl < -0.0001) { dot = `<span style="background:${pnlColor(pnl)}"></span>`; title = `title="${key} 盈亏 ${pnl>=0?'+':''}${fmtY(pnl)}"`; }
+            else dot = '<span style="background:#9CA3AF"></span>';
+          } else { dot = '<span style="background:#9CA3AF"></span>'; }
+        }
+        const isToday = key === todayKey();
+        html += `<div ${title} onclick="fundCalClick('${key}')" class="aspect-square rounded-xl flex flex-col items-center justify-center text-[11px] cursor-pointer ${isToday ? 'bg-macaron/40 font-bold' : 'bg-white/50 hover:bg-white'} text-gray-600 relative"><span>${d}</span>${dot ? `<span class="absolute bottom-1 w-1.5 h-1.5 rounded-full">${dot}</span>` : ''}</div>`;
+      }
+      grid.innerHTML = html;
+    }
+    function fundCalClick(key) {
+      const detail = document.getElementById('fundCalDetail');
+      if (!detail) return;
+      const scope = fundSettings.activeAccount || 'all';
+      const dayObj = fundDaily[key];
+      if (!dayObj || dayObj[scope] == null) { detail.textContent = `${key}：无收益记录`; return; }
+      const prev = fundDaily[prevDateKey(key)];
+      const pnl = (prev && prev[scope] != null) ? (dayObj[scope] - prev[scope]) : null;
+      let txt = `${key} ｜ 总资产 ${fmtY(dayObj[scope])}`;
+      if (pnl != null) txt += ` ｜ 当日盈亏 <span style="color:${pnlColor(pnl)};font-weight:600">${pnl>=0?'+':''}${fmtY(pnl)}</span>`;
+      else txt += ' ｜ 当日盈亏 无对比数据';
+      detail.innerHTML = txt;
+    }
+
+    // ---------- 周报 / 月报 ----------
+    function datesInRange(startKey, endKey) {
+      const out = []; let cur = new Date(startKey + 'T00:00:00');
+      const end = new Date(endKey + 'T00:00:00');
+      while (cur <= end) { out.push(`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`); cur.setDate(cur.getDate() + 1); }
+      return out;
+    }
+    function fundPeriodReturn(h, firstDay, lastDay) {
+      const nh = h.navHistory || {};
+      const keys = Object.keys(nh).filter(k => k >= firstDay && k <= lastDay).sort();
+      if (!keys.length) return null;
+      const start = nh[keys[0]], end = nh[keys[keys.length - 1]];
+      if (!(Number(start) > 0)) return null;
+      return (Number(end) - Number(start)) / Number(start) * 100;
+    }
+    function genFundReport(kind) {
+      const el = document.getElementById('fundReport');
+      if (!el) return;
+      const scope = fundSettings.activeAccount || 'all';
+      const now = new Date();
+      let firstDay, label;
+      if (kind === 'week') {
+        const start = new Date(now); start.setDate(start.getDate() - 6);
+        firstDay = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`;
+        label = '近 7 天';
+      } else {
+        firstDay = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+        label = `${now.getFullYear()}年${now.getMonth()+1}月`;
+      }
+      const lastDay = todayKey();
+      const days = datesInRange(firstDay, lastDay);
+      const beforeFirst = fundDaily[prevDateKey(firstDay)];
+      let prevVal = (beforeFirst && beforeFirst[scope] != null) ? beforeFirst[scope] : (fundDaily[firstDay] ? fundDaily[firstDay][scope] : null);
+      let periodPnl = 0, profitDays = 0, lossDays = 0;
+      days.forEach(d => {
+        const cur = fundDaily[d];
+        if (cur && cur[scope] != null) {
+          if (prevVal != null) { const p = cur[scope] - prevVal; periodPnl += p; if (p > 0.0001) profitDays++; else if (p < -0.0001) lossDays++; }
+          prevVal = cur[scope];
         }
       });
+      const startAssets = (beforeFirst && beforeFirst[scope] != null) ? beforeFirst[scope] : (fundDaily[firstDay] ? fundDaily[firstDay][scope] : 0);
+      const retPct = startAssets > 0 ? (periodPnl / startAssets * 100) : 0;
+      let best = null, worst = null;
+      fundHoldings.forEach(h => {
+        if (scope !== 'all' && h.accountId !== scope) return;
+        const r = fundPeriodReturn(h, firstDay, lastDay);
+        if (r == null) return;
+        if (best == null || r > best.r) best = { name: h.name, r };
+        if (worst == null || r < worst.r) worst = { name: h.name, r };
+      });
+      if (!days.length || (beforeFirst == null && !fundDaily[firstDay])) {
+        el.innerHTML = `<div class="text-gray-500">${label}暂无足够净值记录，先去「📝 更新今日净值」打卡几天吧～</div>`;
+        return;
+      }
+      el.innerHTML = `<div class="space-y-1">
+        <div class="font-semibold text-gray-700 mb-1">📊 ${label}盈亏报告</div>
+        <div>期间总收益：<span style="color:${pnlColor(periodPnl)};font-weight:700">${periodPnl>=0?'+':''}${fmtY(periodPnl)}</span>（收益率 ${pctStr(retPct)}）</div>
+        <div>盈利天数：<span class="text-green-500 font-semibold">${profitDays}</span> ｜ 亏损天数：<span class="text-red-400 font-semibold">${lossDays}</span></div>
+        <div>表现最好：<span class="font-semibold text-gray-700">${best ? escapeHtml(best.name) + '（' + pctStr(best.r) + '）' : '—'}</span></div>
+        <div>表现最差：<span class="font-semibold text-gray-700">${worst ? escapeHtml(worst.name) + '（' + pctStr(worst.r) + '）' : '—'}</span></div>
+      </div>`;
+    }
+
+    // ---------- 账户管理 ----------
+    function openFundAccountModal() {
+      renderFundAccountList();
+      document.getElementById('fundAccountName').value = '';
+      document.getElementById('fundAccountModal').classList.remove('hidden');
+    }
+    function closeFundAccountModal() { document.getElementById('fundAccountModal').classList.add('hidden'); }
+    function renderFundAccountList() {
+      const el = document.getElementById('fundAccountList'); if (!el) return;
+      el.innerHTML = (fundAccounts.map(a => `<div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+        <span class="text-sm text-gray-700">${escapeHtml(a.name)}</span>
+        <button onclick="deleteFundAccount('${a.id}')" class="text-gray-400 hover:text-red-400 text-sm">🗑️</button>
+      </div>`).join('') || '<div class="text-center text-gray-400 text-sm py-2">还没有账户</div>');
+    }
+    function addFundAccount() {
+      const name = _val('fundAccountName');
+      if (!name) { alert('请输入账户名'); return; }
+      fundAccounts.push({ id: 'acc_' + Date.now().toString(36) + Math.random().toString(36).slice(2,4), name });
+      saveFundAccounts(); renderFundAccountList(); renderFund(); showToast('已添加账户 🏦');
+    }
+    function deleteFundAccount(id) {
+      if (fundAccounts.length <= 1) { alert('至少保留一个账户'); return; }
+      if (!confirm('删除该账户？其下所有持仓也会一并删除。')) return;
+      fundAccounts = fundAccounts.filter(a => a.id !== id);
+      fundHoldings = fundHoldings.filter(h => h.accountId !== id);
+      if (fundSettings.activeAccount === id) fundSettings.activeAccount = 'all';
+      saveFundAccounts(); saveFundHoldings(); saveFundSettings(); closeFundAccountModal(); renderFund(); showToast('已删除账户');
+    }
+
+    // ---------- 自动补全 ----------
+    function fundAutocomplete() {
+      const q = _val('fundSearchInput').toLowerCase();
+      const box = document.getElementById('fundSuggest');
+      if (!box) return;
+      if (!q) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+      const matches = FUND_ROSTER.filter(f => f.name.toLowerCase().indexOf(q) >= 0 || f.code.indexOf(q) >= 0).slice(0, 12);
+      if (!matches.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+      box.innerHTML = matches.map(f => `<div class="px-3 py-2 hover:bg-mint/30 cursor-pointer text-sm" onclick="fundPick('${f.code}')"><span class="font-semibold text-gray-700">${escapeHtml(f.name)}</span> <span class="text-gray-400 text-xs">${f.code} · ${f.type} · ${f.theme}</span></div>`).join('');
+      box.classList.remove('hidden');
+    }
+    function fundPick(code) {
+      const f = FUND_ROSTER.find(x => x.code === code); if (!f) return;
+      document.getElementById('fundSearchInput').value = f.name;
+      document.getElementById('addFundCode').value = f.code;
+      document.getElementById('addFundTheme').value = f.theme || '其他';
+      document.getElementById('addFundType').value = f.type;
+      document.getElementById('addFundPickedName').textContent = f.name;
+      document.getElementById('addFundPickedMeta').textContent = `${f.code} · ${f.type} · ${f.theme || '其他'}`;
+      document.getElementById('addFundPicked').classList.remove('hidden');
+      document.getElementById('fundSuggest').classList.add('hidden');
     }
 
     // ---------- 添加基金 ----------
     function openAddFundModal() {
-      document.getElementById('fundNameInput').value = '';
-      document.getElementById('fundTypeInput').value = '股票型';
-      document.getElementById('fundSharesInput').value = '';
-      document.getElementById('fundCostInput').value = '';
-      document.getElementById('fundPriceInput').value = '';
+      const sel = document.getElementById('addFundAccount');
+      sel.innerHTML = fundAccounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+      if (fundSettings.activeAccount && fundSettings.activeAccount !== 'all') sel.value = fundSettings.activeAccount;
+      document.getElementById('fundSearchInput').value = '';
+      document.getElementById('addFundCode').value = '';
+      document.getElementById('addFundTheme').value = '';
+      document.getElementById('addFundType').value = '混合型';
+      document.getElementById('addFundShares').value = '';
+      document.getElementById('addFundCost').value = '';
+      document.getElementById('addFundPrice').value = '';
+      document.getElementById('addFundPicked').classList.add('hidden');
+      document.getElementById('fundSuggest').classList.add('hidden');
       document.getElementById('addFundModal').classList.remove('hidden');
     }
     function closeAddFundModal() { document.getElementById('addFundModal').classList.add('hidden'); }
     function saveFund() {
-      const name = _val('fundNameInput');
-      const type = _val('fundTypeInput');
-      const shares = _num('fundSharesInput');
-      const cost = _num('fundCostInput');
-      const price = _num('fundPriceInput') || cost;
-      if (!name) { alert('请填写基金名称'); return; }
+      const accountId = _val('addFundAccount');
+      const code = _val('addFundCode');
+      const name = _val('fundSearchInput');
+      const type = _val('addFundType');
+      const theme = _val('addFundTheme') || '其他';
+      const shares = _num('addFundShares');
+      const cost = _num('addFundCost');
+      const price = _num('addFundPrice') || cost;
+      if (!name) { alert('请搜索并选择一只基金，或输入基金名称'); return; }
       if (shares <= 0) { alert('请填写有效份额'); return; }
-      if (cost <= 0) { alert('请填写有效成本价'); return; }
-      fundData.funds.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, type, shares, costPrice: cost, currentPrice: price });
-      snapshotNav(); saveFund(); closeAddFundModal(); renderFund(); showToast('已添加基金 📈');
+      if (cost <= 0) { alert('请填写有效成本单价'); return; }
+      if (fundHoldings.some(h => h.accountId === accountId && h.code && h.code === code)) { alert('该账户下已存在此基金，可在持仓中编辑份额'); return; }
+      fundHoldings.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), accountId, code, name, type, theme, shares, costPrice: cost, currentPrice: price, navHistory: {} });
+      snapshotDaily(); saveFundHoldings(); closeAddFundModal(); renderFund(); showToast('已添加基金 📈');
     }
 
-    // ---------- 记录今日净值 ----------
+    // ---------- 更新净值 ----------
     function openNavCheckModal() {
       const sel = document.getElementById('navFundSelect');
-      if (!fundData.funds.length) { showToast('请先添加基金'); return; }
-      sel.innerHTML = fundData.funds.map(f => `<option value="${f.id}">${escapeHtml(f.name)}（现价 ${Number(f.currentPrice) || 0}）</option>`).join('');
+      if (!fundHoldings.length) { showToast('请先添加基金'); return; }
+      const accName = id => { const a = fundAccounts.find(x => x.id === id); return a ? a.name : ''; };
+      sel.innerHTML = fundHoldings.map(h => `<option value="${h.id}">${escapeHtml(accName(h.accountId))} · ${escapeHtml(h.name)}（现价 ${Number(h.currentPrice) || 0}）</option>`).join('');
       document.getElementById('navPriceInput').value = '';
       document.getElementById('navCheckModal').classList.remove('hidden');
     }
@@ -4484,20 +5083,58 @@
     function saveNavCheck() {
       const id = _val('navFundSelect');
       const price = _num('navPriceInput');
-      const f = fundById(id);
-      if (!f) return;
+      const h = fundById(id);
+      if (!h) return;
       if (price <= 0) { alert('请填写有效净值'); return; }
-      f.currentPrice = price;
-      snapshotNav(); saveFund(); closeNavCheckModal(); renderFund(); showToast('已记录今日净值 📝');
+      h.currentPrice = price;
+      if (!h.navHistory) h.navHistory = {};
+      h.navHistory[todayKey()] = price;
+      snapshotDaily(); saveFundHoldings(); closeNavCheckModal(); renderFund(); showToast('已更新今日净值 📝');
+    }
+
+    // ---------- 编辑基金 ----------
+    function openEditFundModal(id) {
+      const h = fundById(id); if (!h) return;
+      document.getElementById('editFundTitle').textContent = `${h.name}（${h.code || '自定义'}）`;
+      document.getElementById('editFundShares').value = h.shares;
+      document.getElementById('editFundCost').value = h.costPrice;
+      document.getElementById('editFundPrice').value = h.currentPrice;
+      document.getElementById('editFundModal').dataset.fid = id;
+      document.getElementById('editFundModal').classList.remove('hidden');
+    }
+    function closeEditFundModal() { document.getElementById('editFundModal').classList.add('hidden'); }
+    function saveEditFund() {
+      const id = document.getElementById('editFundModal').dataset.fid;
+      const h = fundById(id); if (!h) return;
+      h.shares = _num('editFundShares');
+      h.costPrice = _num('editFundCost');
+      const price = _num('editFundPrice');
+      h.currentPrice = price;
+      if (!h.navHistory) h.navHistory = {};
+      h.navHistory[todayKey()] = price;
+      snapshotDaily(); saveFundHoldings(); closeEditFundModal(); renderFund(); showToast('已保存修改 ✏️');
+    }
+    function deleteFund(id) {
+      if (!confirm('确定删除该基金持仓吗？历史净值快照会保留在走势图与日历中。')) return;
+      fundHoldings = fundHoldings.filter(h => h.id !== id);
+      saveFundHoldings(); renderFund(); showToast('已删除基金');
     }
 
     // ---------- 目标仓位 ----------
     function openTargetModal() {
       FUND_TYPES.forEach(t => { const el = document.getElementById('target_' + t); if (el) el.value = (Number(fundTarget[t]) || 0) || ''; });
+      setProfitColor(fundSettings.profitColor || 'red', true);
       updateTargetSumTip();
       document.getElementById('targetModal').classList.remove('hidden');
     }
     function closeTargetModal() { document.getElementById('targetModal').classList.add('hidden'); }
+    function setProfitColor(c, silent) {
+      fundSettings.profitColor = c;
+      const r = document.getElementById('profitRedBtn'), g = document.getElementById('profitGreenBtn');
+      if (r) r.className = 'flex-1 py-1.5 rounded-2xl text-sm font-semibold ' + (c === 'red' ? 'bg-red-200 text-red-600' : 'bg-gray-100 text-gray-500');
+      if (g) g.className = 'flex-1 py-1.5 rounded-2xl text-sm font-semibold ' + (c === 'green' ? 'bg-green-200 text-green-600' : 'bg-gray-100 text-gray-500');
+      if (!silent) { saveFundSettings(); renderFund(); }
+    }
     function updateTargetSumTip() {
       const sum = FUND_TYPES.reduce((s, t) => s + (_num('target_' + t) || 0), 0);
       const tip = document.getElementById('targetSumTip');
@@ -4508,61 +5145,8 @@
     }
     function saveTarget() {
       FUND_TYPES.forEach(t => { const v = _num('target_' + t); if (v > 0) fundTarget[t] = v; else delete fundTarget[t]; });
-      saveFundTarget(); closeTargetModal(); renderFund(); showToast('目标仓位已保存 ⚙️');
+      saveFundTarget(); saveFundSettings(); closeTargetModal(); renderFund(); showToast('目标仓位已保存 ⚙️');
     }
-
-    // ---------- 交易记录 ----------
-    function setTxType(type) {
-      txType = type;
-      document.getElementById('txBuyBtn').className = 'flex-1 py-2 rounded-2xl ' + (type === 'buy' ? 'bg-macaron text-gray-700 font-semibold text-sm' : 'bg-gray-100 text-gray-600 font-semibold text-sm');
-      document.getElementById('txSellBtn').className = 'flex-1 py-2 rounded-2xl ' + (type === 'sell' ? 'bg-macaron text-gray-700 font-semibold text-sm' : 'bg-gray-100 text-gray-600 font-semibold text-sm');
-    }
-    function openTxModal() {
-      const sel = document.getElementById('txFundSelect');
-      if (!fundData.funds.length) { showToast('请先添加基金'); return; }
-      sel.innerHTML = fundData.funds.map(f => `<option value="${f.id}">${escapeHtml(f.name)}（持有 ${Number(f.shares) || 0} 份）</option>`).join('');
-      document.getElementById('txSharesInput').value = '';
-      document.getElementById('txPriceInput').value = '';
-      document.getElementById('txNoteInput').value = '';
-      setTxType('buy');
-      document.getElementById('txModal').classList.remove('hidden');
-    }
-    function closeTxModal() { document.getElementById('txModal').classList.add('hidden'); }
-    function saveTx() {
-      const id = _val('txFundSelect');
-      const shares = _num('txSharesInput');
-      const price = _num('txPriceInput');
-      const note = _val('txNoteInput');
-      const f = fundById(id);
-      if (!f) return;
-      if (shares <= 0) { alert('请填写有效份额'); return; }
-      if (price <= 0) { alert('请填写有效成交价'); return; }
-      if (txType === 'buy') {
-        const oldShares = Number(f.shares) || 0;
-        const oldCost = (Number(f.costPrice) || 0) * oldShares;
-        f.shares = oldShares + shares;
-        f.costPrice = f.shares > 0 ? ((oldCost + shares * price) / f.shares) : price;
-      } else {
-        if (shares > (Number(f.shares) || 0)) { alert('卖出份额超过持有份额'); return; }
-        f.shares = (Number(f.shares) || 0) - shares;
-      }
-      f.currentPrice = price;
-      fundRecords.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: todayKey(), fundName: f.name, type: txType, shares, price, amount: shares * price, note });
-      snapshotNav(); saveFund(); saveFundRecords(); closeTxModal(); renderFund(); showToast(txType === 'buy' ? '已记录买入 📈' : '已记录卖出 📉');
-    }
-
-    // ---------- 删除 ----------
-    function deleteFund(id) {
-      if (!confirm('确定删除该基金持仓吗？相关净值历史会保留在走势图中。')) return;
-      fundData.funds = fundData.funds.filter(f => f.id !== id);
-      saveFund(); renderFund(); showToast('已删除基金');
-    }
-    function deleteTx(id) {
-      if (!confirm('确定删除该交易记录吗？持仓份额不会自动回退。')) return;
-      fundRecords = fundRecords.filter(r => r.id !== id);
-      saveFundRecords(); renderFund(); showToast('已删除交易记录');
-    }
-
     // ================= Service Worker =================
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -4587,6 +5171,96 @@
     }
 
     // ================= 启动 =================
+    // ================= 首页快捷操作 =================
+    let qaMoodTag = '';
+    let qaExpenseCat = FIN_CATS.expense[0].key;
+
+    function renderQAMoodTags() {
+      const tags = ['😊', '😌', '😢', '😤', '🥱'];
+      const el = document.getElementById('qaMoodTags');
+      if (!el) return;
+      el.innerHTML = tags.map(t => `
+        <button type="button" onclick="setQAMoodTag('${t}')" class="flex-1 text-2xl py-2 rounded-2xl border transition btn-bounce ${qaMoodTag === t ? 'bg-macaron/40 border-macaronDark scale-110' : 'bg-white/60 border-white'}">${t}</button>`).join('');
+    }
+    function setQAMoodTag(t) { qaMoodTag = qaMoodTag === t ? '' : t; renderQAMoodTags(); }
+
+    function renderQAExpenseCats() {
+      const el = document.getElementById('qaExpenseCats');
+      if (!el) return;
+      el.innerHTML = FIN_CATS.expense.map(c => `
+        <button type="button" onclick="setQAExpenseCat('${c.key}')" class="flex flex-col items-center gap-1 p-2 rounded-2xl border transition btn-bounce ${qaExpenseCat === c.key ? 'bg-mint/40 border-mintDark' : 'bg-white/60 border-white'}">
+          <span class="text-xl">${c.icon}</span><span class="text-[11px] text-gray-600">${c.name}</span>
+        </button>`).join('');
+    }
+    function setQAExpenseCat(k) { qaExpenseCat = k; renderQAExpenseCats(); }
+
+    // —— 体重 ——
+    function openQAWeight() {
+      const i = document.getElementById('qaWeightInput');
+      if (i) i.value = '';
+      document.getElementById('qaWeightModal').classList.remove('hidden');
+      setTimeout(() => { if (i) i.focus(); }, 120);
+    }
+    function closeQAWeight() { document.getElementById('qaWeightModal').classList.add('hidden'); }
+    function saveQAWeight() {
+      const i = document.getElementById('qaWeightInput');
+      const w = parseFloat(i.value);
+      if (isNaN(w) || w <= 0) { alert('请输入有效体重'); return; }
+      const t = todayKey();
+      const idx = data.weights.findIndex(x => x.date === t);
+      if (idx >= 0) data.weights[idx].weight = w; else data.weights.push({ date: t, weight: w });
+      data.weights.sort((a, b) => a.date.localeCompare(b.date));
+      saveData(); closeQAWeight();
+      if (typeof renderHealth === 'function') renderHealth();
+      if (typeof updateWeightChart === 'function') updateWeightChart();
+      renderOverview(); renderSidebarOverview();
+      showToast('⚖️ 体重已记录，明天继续加油~', 'success');
+    }
+
+    // —— 心情 ——
+    function openQAMood() {
+      qaMoodTag = '';
+      const i = document.getElementById('qaMoodInput');
+      if (i) i.value = '';
+      renderQAMoodTags();
+      document.getElementById('qaMoodModal').classList.remove('hidden');
+      setTimeout(() => { if (i) i.focus(); }, 120);
+    }
+    function closeQAMood() { document.getElementById('qaMoodModal').classList.add('hidden'); }
+    function saveQAMood() {
+      const i = document.getElementById('qaMoodInput');
+      const text = i.value.trim();
+      if (!text && !qaMoodTag) { alert('写点什么，或选个心情吧~'); return; }
+      data.moods.unshift({ id: 'm_' + Date.now(), text: text || qaMoodTag, tag: qaMoodTag, images: [], date: Date.now() });
+      saveData(); closeQAMood();
+      if (typeof renderMoods === 'function') renderMoods();
+      if (typeof updateMoodChart === 'function') updateMoodChart();
+      renderOverview(); renderSidebarOverview();
+      showToast('💭 心情已存档，你是被在意着的。', 'info');
+    }
+
+    // —— 支出 ——
+    function openQAExpense() {
+      const i = document.getElementById('qaExpenseAmount');
+      if (i) i.value = '';
+      renderQAExpenseCats();
+      document.getElementById('qaExpenseModal').classList.remove('hidden');
+      setTimeout(() => { if (i) i.focus(); }, 120);
+    }
+    function closeQAExpense() { document.getElementById('qaExpenseModal').classList.add('hidden'); }
+    function saveQAExpense() {
+      const i = document.getElementById('qaExpenseAmount');
+      const amt = parseFloat(i.value);
+      if (isNaN(amt) || amt <= 0) { alert('请输入有效金额'); return; }
+      data.finance = data.finance || {};
+      data.finance.transactions = data.finance.transactions || [];
+      data.finance.transactions.unshift({ id: 't_' + Date.now(), type: 'expense', category: qaExpenseCat, amount: amt, note: '', date: todayKey(), ts: Date.now() });
+      saveData(); closeQAExpense();
+      if (typeof renderFinance === 'function') renderFinance();
+      renderOverview(); renderSidebarOverview();
+      showToast('💰 记账成功，钱包的小本本记下了~', 'success');
+    }
+
     function init() {
       loadData();
       loadFundData();
