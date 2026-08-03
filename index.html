@@ -417,6 +417,9 @@
       <div class="nav-item relative px-3 py-3 flex items-center gap-3" data-section="review">
         <span class="nav-drag-handle" title="拖拽排序">⠿</span><span class="text-xl">🌙</span><span class="font-semibold text-sm">今天我没白过</span>
       </div>
+      <div class="nav-item relative px-3 py-3 flex items-center gap-3" data-section="fund">
+        <span class="nav-drag-handle" title="拖拽排序">⠿</span><span class="text-xl">📈</span><span class="font-semibold text-sm">财富风向标</span>
+      </div>
     </nav>
 
     <div class="sidebar-overview-wrap mt-auto pt-4 border-t border-white/60">
@@ -1224,6 +1227,72 @@
       </div>
     </section>
 
+    <!-- ====== 板块：财富风向标（理财） ====== -->
+    <section id="section-fund" class="section-pane">
+      <div class="w-full">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="section-icon bg-macaron">📈</div>
+          <div>
+            <h2 class="font-cute text-2xl text-gray-800">财富风向标</h2>
+            <p class="text-xs text-gray-500">📈 手动记录净值，慢慢养出自己的理财直觉。</p>
+          </div>
+        </div>
+
+        <!-- 顶部总览卡（深色） -->
+        <div class="finance-dark-card p-6 mb-5">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-sm opacity-80">总资产</div>
+            <button onclick="openNavCheckModal()" class="text-xs bg-white/15 hover:bg-white/25 px-3 py-1 rounded-full transition">📝 记录今日净值</button>
+          </div>
+          <div id="fundTotalAssets" class="text-4xl font-bold mb-4">¥0.00</div>
+          <div class="grid grid-cols-2 gap-3 text-center">
+            <div><div class="text-xs opacity-70">今日盈亏</div><div id="fundTodayPnl" class="text-2xl font-bold">—</div></div>
+            <div><div class="text-xs opacity-70">总收益率</div><div id="fundReturnPct" class="text-2xl font-bold">+0.00%</div></div>
+          </div>
+        </div>
+
+        <!-- 持仓明细 -->
+        <div class="glass-card p-5 mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-cute text-lg">📊 持仓明细</h3>
+            <button onclick="openAddFundModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold text-xs shadow-sm">➕ 添加基金</button>
+          </div>
+          <div id="fundHoldings" class="space-y-2"></div>
+        </div>
+
+        <!-- 净值打卡与走势图 -->
+        <div class="glass-card p-5 mb-5">
+          <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <h3 class="font-cute text-lg">📈 收益走势（近 30 天）</h3>
+            <button onclick="openNavCheckModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-sky hover:bg-skyDark text-gray-700 font-semibold text-xs shadow-sm">📝 记录今日净值</button>
+          </div>
+          <div id="fundChartHint" class="text-xs text-gray-500 mb-2">记录每日净值后，这里会自动生成近 30 天的累计总资产走势图。</div>
+          <div class="h-52"><canvas id="fundTrendChart"></canvas></div>
+        </div>
+
+        <!-- 调仓建议 -->
+        <div class="glass-card p-5 mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-cute text-lg">🧭 调仓建议</h3>
+            <button onclick="openTargetModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-mint hover:bg-mintDark text-gray-700 font-semibold text-xs shadow-sm">⚙️ 设置目标仓位</button>
+          </div>
+          <div id="fundRebalanceList" class="mb-3"></div>
+          <div id="fundAdvice" class="rounded-2xl bg-white/50 border border-white p-3"></div>
+        </div>
+
+        <!-- 交易记录 -->
+        <div class="glass-card p-5 mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-cute text-lg">📒 交易记录</h3>
+            <button onclick="openTxModal()" class="btn-bounce px-3 py-1.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold text-xs shadow-sm">➕ 记一笔交易</button>
+          </div>
+          <div id="fundTxList" class="space-y-2 max-h-[360px] overflow-y-auto pr-1"></div>
+        </div>
+
+        <p class="text-[11px] text-gray-400 text-center mb-2">💡 本地 PWA 不联网获取实时估值，净值由你手动记录，数据完全自己掌控。</p>
+      </div>
+    </section>
+
     <footer class="mt-10 text-center text-gray-500 text-sm pb-6">
       <p class="font-cute">🎮 Yoki的地球Online —— 今日上线，欢迎回来！</p>
       <button onclick="openHelpModal()" class="mt-2 inline-flex items-center gap-1 text-xs text-gray-400 hover:text-mint transition">📱 数据联动说明</button>
@@ -1329,12 +1398,166 @@
           <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="finance">
           <span class="text-sm text-gray-700">🐷 小猪记账（账单、预算、收入）</span>
         </label>
+        <label class="flex items-center gap-2 p-2 rounded-xl bg-amber/10 cursor-pointer hover:bg-amber/20 transition">
+          <input type="checkbox" class="reset-module-check w-4 h-4 accent-sky" value="fund">
+          <span class="text-sm text-gray-700">📈 财富风向标（基金持仓、净值、交易）</span>
+        </label>
       </div>
       <div class="flex gap-2 mb-3">
         <button onclick="selectAllReset(true)" class="flex-1 py-2 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-sm transition">全选</button>
         <button onclick="selectAllReset(false)" class="flex-1 py-2 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold text-sm transition">全不选</button>
       </div>
       <button onclick="confirmResetModules()" class="w-full py-2.5 rounded-2xl bg-red-300 hover:bg-red-400 text-white font-semibold transition">确认重置</button>
+    </div>
+  </div>
+
+  <!-- 财富风向标：添加基金 Modal -->
+  <div id="addFundModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='addFundModal')closeAddFundModal()">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cute text-lg text-gray-700">➕ 添加基金</h3>
+        <button onclick="closeAddFundModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-gray-500">基金名称</label>
+          <input id="fundNameInput" type="text" placeholder="如：沪深300ETF、余额宝" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+        </div>
+        <div>
+          <label class="text-xs text-gray-500">类别（用于调仓建议）</label>
+          <select id="fundTypeInput" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+            <option value="股票型">📈 股票型</option>
+            <option value="债券型">🏦 债券型</option>
+            <option value="货币型">💰 货币型</option>
+            <option value="混合型">🧩 混合型</option>
+            <option value="QDII海外">🌍 QDII / 海外</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="text-xs text-gray-500">持有份额</label>
+            <input id="fundSharesInput" type="number" inputmode="decimal" placeholder="份额" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500">成本价</label>
+            <input id="fundCostInput" type="number" inputmode="decimal" placeholder="¥" oninput="if(!document.getElementById('fundPriceInput').value)document.getElementById('fundPriceInput').value=this.value" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500">当前净值</label>
+            <input id="fundPriceInput" type="number" inputmode="decimal" placeholder="¥" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          </div>
+        </div>
+      </div>
+      <p class="text-[11px] text-gray-400 mt-2">当前净值默认取成本价，可手动改为最新净值。今日总资产快照会在保存时自动记录。</p>
+      <div class="flex gap-3 mt-4">
+        <button onclick="closeAddFundModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
+        <button onclick="saveFund()" class="flex-1 py-2.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 财富风向标：记录今日净值 Modal -->
+  <div id="navCheckModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='navCheckModal')closeNavCheckModal()">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cute text-lg text-gray-700">📝 记录今日净值</h3>
+        <button onclick="closeNavCheckModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-gray-500">选择基金</label>
+          <select id="navFundSelect" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-skyDark"></select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500">今日单位净值</label>
+          <input id="navPriceInput" type="number" inputmode="decimal" placeholder="输入最新净值" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-skyDark">
+        </div>
+      </div>
+      <p class="text-[11px] text-gray-400 mt-2">保存后自动更新该基金当前净值，并记录今日总资产快照，用于近 30 天走势图。</p>
+      <div class="flex gap-3 mt-4">
+        <button onclick="closeNavCheckModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
+        <button onclick="saveNavCheck()" class="flex-1 py-2.5 rounded-2xl bg-sky hover:bg-skyDark text-gray-700 font-semibold">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 财富风向标：设置目标仓位 Modal -->
+  <div id="targetModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='targetModal')closeTargetModal()">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cute text-lg text-gray-700">⚙️ 设置目标仓位</h3>
+        <button onclick="closeTargetModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+      </div>
+      <p class="text-xs text-gray-500 mb-3">设定各类型基金的目标占比（百分比，建议合计 100%）。偏离目标 ±5% 以上会给出调仓建议。</p>
+      <div class="space-y-2" id="targetList">
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">📈 股票型</span>
+          <span class="flex items-center gap-1"><input id="target_股票型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">🏦 债券型</span>
+          <span class="flex items-center gap-1"><input id="target_债券型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">💰 货币型</span>
+          <span class="flex items-center gap-1"><input id="target_货币型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">🧩 混合型</span>
+          <span class="flex items-center gap-1"><input id="target_混合型" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-mint/10">
+          <span class="text-sm text-gray-700">🌍 QDII / 海外</span>
+          <span class="flex items-center gap-1"><input id="target_QDII海外" type="number" inputmode="decimal" placeholder="0" class="w-16 px-2 py-1 rounded-xl border border-gray-200 bg-white text-right text-sm">%</span>
+        </div>
+      </div>
+      <p id="targetSumTip" class="text-[11px] text-gray-400 mt-2"></p>
+      <div class="flex gap-3 mt-4">
+        <button onclick="closeTargetModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
+        <button onclick="saveTarget()" class="flex-1 py-2.5 rounded-2xl bg-mint hover:bg-mintDark text-gray-700 font-semibold">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 财富风向标：记一笔交易 Modal -->
+  <div id="txModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='txModal')closeTxModal()">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-white">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-cute text-lg text-gray-700">📒 记一笔交易</h3>
+        <button onclick="closeTxModal()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl">&times;</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-gray-500">选择基金</label>
+          <select id="txFundSelect" class="w-full px-4 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark"></select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500">交易方向</label>
+          <div class="flex gap-2">
+            <button type="button" onclick="setTxType('buy')" id="txBuyBtn" class="flex-1 py-2 rounded-2xl bg-macaron text-gray-700 font-semibold text-sm">买入</button>
+            <button type="button" onclick="setTxType('sell')" id="txSellBtn" class="flex-1 py-2 rounded-2xl bg-gray-100 text-gray-600 font-semibold text-sm">卖出</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-gray-500">份额</label>
+            <input id="txSharesInput" type="number" inputmode="decimal" placeholder="份额" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500">成交价</label>
+            <input id="txPriceInput" type="number" inputmode="decimal" placeholder="¥" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500">备注（可选）</label>
+          <input id="txNoteInput" type="text" placeholder="如：定投 / 止盈" class="w-full px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark">
+        </div>
+      </div>
+      <p class="text-[11px] text-gray-400 mt-2">买入会增加持仓份额并更新成本价；卖出减少份额。该记录独立保存在「财富风向标」中，不影响小猪记账。</p>
+      <div class="flex gap-3 mt-4">
+        <button onclick="closeTxModal()" class="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-700 font-semibold">取消</button>
+        <button onclick="saveTx()" class="flex-1 py-2.5 rounded-2xl bg-macaron hover:bg-macaronDark text-gray-700 font-semibold">保存</button>
+      </div>
     </div>
   </div>
 
@@ -1602,15 +1825,23 @@
       const keepName = (data.user && data.user.name) || 'Yoki';
       const keepVocabLang = data.vocabLang || 'en';
       const keepSettings = data.settings || {};
+      // 新一轮从 RESET_DATE 起算：startDate 固定为 RESET_DATE，登录天数 = 自 RESET_DATE 至今天（含）的自然日数
+      const loginDates = {};
+      const _cur = new Date(RESET_DATE + 'T00:00:00');
+      const _stop = new Date(today + 'T00:00:00');
+      while (_cur <= _stop) {
+        loginDates[`${_cur.getFullYear()}-${String(_cur.getMonth()+1).padStart(2,'0')}-${String(_cur.getDate()).padStart(2,'0')}`] = true;
+        _cur.setDate(_cur.getDate() + 1);
+      }
       data = {
-        user: { name: keepName, totalLoginDays: 1 },
+        user: { name: keepName, totalLoginDays: Object.keys(loginDates).length },
         lastLoginDate: today,
-        loginDates: { [today]: true },
+        loginDates: loginDates,
         photos: [], categories: [], moods: [], health: {}, weights: [],
         meals: {}, exercises: [], exerciseLog: {}, calorieGoal: 1800,
         water: {}, sleep: {},
         finance: keepFinance,
-        startDate: today,
+        startDate: RESET_DATE,
         cloud: {}, cloudLikes: [], cloudCustom: [], brain: {}, rewardBalance: 0, rewardHistory: [], review: {}, geoCache: {},
         vocabLang: keepVocabLang, vocabCursorEn: 0, vocabCursorFr: 0, vocabStats: {}, vocabDaily: {},
         settings: keepSettings,
@@ -1745,9 +1976,10 @@
       if (section === 'welcome') renderWelcome();
       if (section === 'finance') { renderFinance(); switchFinanceTab('home'); }
       if (section === 'cloud') initCloud();
+      if (section === 'fund') renderFund();
     }
     const NAV_ORDER_KEY = 'yoki_nav_order';
-    const DEFAULT_NAV_ORDER = ['album','mood','health','finance','cloud','brain','review'];
+    const DEFAULT_NAV_ORDER = ['album','mood','health','finance','cloud','brain','review','fund'];
 
     function showToast(message) {
       let el = document.getElementById('global-toast');
@@ -1768,7 +2000,7 @@
         const raw = localStorage.getItem(NAV_ORDER_KEY);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length === 7 && parsed.every(id => DEFAULT_NAV_ORDER.includes(id))) {
+        if (Array.isArray(parsed) && parsed.length === DEFAULT_NAV_ORDER.length && parsed.every(id => DEFAULT_NAV_ORDER.includes(id))) {
           return parsed;
         }
       } catch (e) {}
@@ -3959,7 +4191,7 @@
     function confirmResetModules() {
       const checked = Array.from(document.querySelectorAll('.reset-module-check:checked')).map(cb => cb.value);
       if (!checked.length) { alert('请至少选择一个要重置的板块'); return; }
-      const names = { health: '流汗 KPI', brain: '脑力小作坊', mood: '心情日记', cloud: '云朵充电站', album: '胶卷盲盒', finance: '小猪记账' };
+      const names = { health: '流汗 KPI', brain: '脑力小作坊', mood: '心情日记', cloud: '云朵充电站', album: '胶卷盲盒', finance: '小猪记账', fund: '财富风向标' };
       if (!confirm('确定要重置以下板块吗？数据不可恢复！\n\n' + checked.map(v => '· ' + names[v]).join('\n'))) return;
       checked.forEach(resetModule);
       saveData(); closeResetModal(); renderAll(); showToast('已重置选中板块');
@@ -3989,7 +4221,346 @@
         case 'finance':
           data.finance = { month: today.slice(0,7), budget: 0, income: 0, transactions: [] };
           break;
+        case 'fund':
+          fundData = { funds: [], navHistory: {} };
+          fundTarget = {};
+          fundRecords = [];
+          saveFund(); saveFundTarget(); saveFundRecords();
+          break;
       }
+    }
+
+    // ================= 财富风向标（独立基金理财模块） =================
+    const FUND_KEY = 'yoki_fund_data';
+    const FUND_TARGET_KEY = 'yoki_fund_target';
+    const FUND_REC_KEY = 'yoki_fund_records';
+    const FUND_TYPES = ['股票型', '债券型', '货币型', '混合型', 'QDII海外'];
+    let fundData = { funds: [], navHistory: {} };
+    let fundTarget = {};
+    let fundRecords = [];
+    let txType = 'buy';
+    let _fundChart = null;
+
+    function loadFundData() {
+      try { const r = localStorage.getItem(FUND_KEY); if (r) fundData = JSON.parse(r); } catch (e) {}
+      if (!fundData || typeof fundData !== 'object') fundData = {};
+      if (!Array.isArray(fundData.funds)) fundData.funds = [];
+      if (!fundData.navHistory || typeof fundData.navHistory !== 'object') fundData.navHistory = {};
+      try { const r = localStorage.getItem(FUND_TARGET_KEY); if (r) fundTarget = JSON.parse(r); } catch (e) {}
+      if (!fundTarget || typeof fundTarget !== 'object') fundTarget = {};
+      try { const r = localStorage.getItem(FUND_REC_KEY); if (r) fundRecords = JSON.parse(r); } catch (e) {}
+      if (!Array.isArray(fundRecords)) fundRecords = [];
+    }
+    function saveFund() { try { localStorage.setItem(FUND_KEY, JSON.stringify(fundData)); } catch (e) {} }
+    function saveFundTarget() { try { localStorage.setItem(FUND_TARGET_KEY, JSON.stringify(fundTarget)); } catch (e) {} }
+    function saveFundRecords() { try { localStorage.setItem(FUND_REC_KEY, JSON.stringify(fundRecords)); } catch (e) {} }
+
+    function _num(id) { const v = parseFloat(document.getElementById(id)?.value); return isFinite(v) ? v : 0; }
+    function _val(id) { return (document.getElementById(id)?.value || '').trim(); }
+    function fmtY(n) { return '¥' + (Number(n) || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function pnlColor(v) { return v > 0 ? '#E8847A' : (v < 0 ? '#4CAF50' : '#9CA3AF'); } // 红涨 绿跌（A股习惯）
+    function pctStr(v) { return (v > 0 ? '+' : '') + (Number(v) || 0).toFixed(2) + '%'; }
+    function yesterdayKey() { const d = new Date(); d.setDate(d.getDate() - 1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+    function fundTotals() {
+      const funds = fundData.funds;
+      let totalAssets = 0, totalCost = 0;
+      funds.forEach(f => {
+        const sh = Number(f.shares) || 0;
+        totalAssets += (Number(f.currentPrice) || 0) * sh;
+        totalCost += (Number(f.costPrice) || 0) * sh;
+      });
+      const pnl = totalAssets - totalCost;
+      const returnPct = totalCost > 0 ? (pnl / totalCost * 100) : 0;
+      return { totalAssets, totalCost, pnl, returnPct };
+    }
+    function fundTodayPnl() {
+      const today = todayKey();
+      const prev = fundData.navHistory[yesterdayKey()];
+      if (prev == null) return null;
+      return fundTotals().totalAssets - prev;
+    }
+    function snapshotNav() {
+      fundData.navHistory[todayKey()] = fundTotals().totalAssets;
+    }
+    function fundById(id) { return fundData.funds.find(f => f.id === id); }
+
+    // ---------- 总览 ----------
+    function renderFund() {
+      const { totalAssets, pnl, returnPct } = fundTotals();
+      const taEl = document.getElementById('fundTotalAssets');
+      const tpEl = document.getElementById('fundTodayPnl');
+      const rpEl = document.getElementById('fundReturnPct');
+      if (taEl) taEl.textContent = fmtY(totalAssets);
+      if (tpEl) {
+        const t = fundTodayPnl();
+        if (t == null) { tpEl.textContent = '—'; tpEl.style.color = '#9CA3AF'; }
+        else { tpEl.textContent = (t >= 0 ? '+' : '') + fmtY(t); tpEl.style.color = pnlColor(t); }
+      }
+      if (rpEl) { rpEl.textContent = pctStr(returnPct); rpEl.style.color = pnlColor(pnl); }
+
+      renderFundHoldings();
+      renderFundRebalance();
+      renderFundTx();
+      renderFundTrend();
+      const hint = document.getElementById('fundChartHint');
+      if (hint) hint.style.display = Object.keys(fundData.navHistory).length ? 'none' : 'block';
+    }
+
+    // ---------- 持仓明细 ----------
+    function renderFundHoldings() {
+      const el = document.getElementById('fundHoldings');
+      if (!el) return;
+      if (!fundData.funds.length) {
+        el.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">还没有基金，点击右上角「➕ 添加基金」开始记录吧～</div>';
+        return;
+      }
+      el.innerHTML = fundData.funds.map(f => {
+        const sh = Number(f.shares) || 0;
+        const val = (Number(f.currentPrice) || 0) * sh;
+        const cost = (Number(f.costPrice) || 0) * sh;
+        const pnl = val - cost;
+        const pct = cost > 0 ? (pnl / cost * 100) : 0;
+        const typeBadge = { '股票型': 'bg-red-50 text-red-400', '债券型': 'bg-blue-50 text-blue-400', '货币型': 'bg-amber-50 text-amber-500', '混合型': 'bg-purple-50 text-purple-400', 'QDII海外': 'bg-teal-50 text-teal-500' }[f.type] || 'bg-gray-100 text-gray-500';
+        return `
+          <div class="rounded-2xl bg-white/60 border border-white p-3 flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="font-semibold text-gray-700 truncate">${escapeHtml(f.name)}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full ${typeBadge}">${f.type || '其他'}</span>
+              </div>
+              <button onclick="deleteFund('${f.id}')" class="text-gray-400 hover:text-red-400 text-sm" title="删除">🗑️</button>
+            </div>
+            <div class="grid grid-cols-4 gap-1 text-center text-[11px]">
+              <div><div class="text-gray-400">份额</div><div class="font-semibold text-gray-700">${sh}</div></div>
+              <div><div class="text-gray-400">成本</div><div class="font-semibold text-gray-700">${Number(f.costPrice) || 0}</div></div>
+              <div><div class="text-gray-400">现价</div><div class="font-semibold text-gray-700">${Number(f.currentPrice) || 0}</div></div>
+              <div><div class="text-gray-400">市值</div><div class="font-semibold text-gray-700">${fmtY(val).replace('¥', '')}</div></div>
+            </div>
+            <div class="text-right text-sm font-semibold" style="color:${pnlColor(pnl)}">${pnl >= 0 ? '+' : ''}${fmtY(pnl).replace('¥', '')}（${pctStr(pct)}）</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ---------- 调仓建议 ----------
+    function renderFundRebalance() {
+      const listEl = document.getElementById('fundRebalanceList');
+      const tipEl = document.getElementById('fundAdvice');
+      if (!listEl || !tipEl) return;
+      const T = fundTotals().totalAssets || 0;
+      const keys = FUND_TYPES.filter(t => (Number(fundTarget[t]) || 0) > 0);
+      if (!keys.length) {
+        listEl.innerHTML = '';
+        tipEl.innerHTML = '<div class="text-sm text-gray-500">🧭 还没设置目标仓位。点击右上角「⚙️ 设置目标仓位」设定各类型占比，系统会自动给出调仓建议。</div>';
+        return;
+      }
+      const rows = keys.map(type => {
+        const targetPct = Number(fundTarget[type]) || 0;
+        let actual = 0;
+        fundData.funds.forEach(f => { if (f.type === type) actual += (Number(f.currentPrice) || 0) * (Number(f.shares) || 0); });
+        const actualPct = T > 0 ? (actual / T * 100) : 0;
+        const dev = actualPct - targetPct;
+        const targetAmt = T * targetPct / 100;
+        const diffAmt = actual - targetAmt;
+        let status, color, advice;
+        if (Math.abs(dev) < 5) {
+          status = '合理'; color = '#4CAF50';
+          advice = `✅ 仓位合理（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），无需调仓`;
+        } else if (dev > 0) {
+          status = '超标'; color = '#E8847A';
+          advice = `⚠️ 超标 ${dev.toFixed(1)}%（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），建议止盈卖出约 ${fmtY(Math.abs(diffAmt))}`;
+        } else {
+          status = '不足'; color = '#3B82F6';
+          advice = `📥 不足 ${Math.abs(dev).toFixed(1)}%（实际 ${actualPct.toFixed(1)}% / 目标 ${targetPct}%），建议加仓买入约 ${fmtY(Math.abs(diffAmt))}`;
+        }
+        return {
+          bar: `<div class="mb-2">
+              <div class="flex items-center justify-between text-xs mb-1"><span class="text-gray-700">${type}</span><span style="color:${color}">${status}（${actualPct.toFixed(1)}% / ${targetPct}%）</span></div>
+              <div class="h-2 rounded-full bg-gray-100 overflow-hidden relative">
+                <div class="h-full rounded-full" style="width:${Math.min(100, actualPct)}%;background:${color}"></div>
+                <div class="absolute top-0 h-full w-0.5 bg-gray-400" style="left:${Math.min(100, targetPct)}%"></div>
+              </div>
+            </div>`,
+          advice: `<div class="text-sm" style="color:${color}">${advice}</div>`
+        };
+      });
+      listEl.innerHTML = rows.map(r => r.bar).join('');
+      tipEl.innerHTML = rows.map(r => r.advice).join('<div class="my-1 border-t border-white/60"></div>');
+    }
+
+    // ---------- 交易记录 ----------
+    function renderFundTx() {
+      const el = document.getElementById('fundTxList');
+      if (!el) return;
+      if (!fundRecords.length) {
+        el.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">还没有交易记录，点击「➕ 记一笔交易」吧。</div>';
+        return;
+      }
+      el.innerHTML = fundRecords.map(r => {
+        const isBuy = r.type === 'buy';
+        const color = isBuy ? '#E8847A' : '#4CAF50';
+        const tag = isBuy ? '买入' : '卖出';
+        return `
+          <div class="rounded-2xl bg-white/60 border border-white p-3 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold" style="background:${color}22;color:${color}">${tag}</span>
+                <span class="font-semibold text-gray-700 truncate">${escapeHtml(r.fundName)}</span>
+              </div>
+              <div class="text-[11px] text-gray-400 mt-0.5">${r.date} ｜ ${r.shares} 份 @ ${r.price} ｜ ${fmtY(r.amount).replace('¥', '')}${r.note ? ' ｜ ' + escapeHtml(r.note) : ''}</div>
+            </div>
+            <button onclick="deleteTx('${r.id}')" class="text-gray-400 hover:text-red-400 text-sm" title="删除">🗑️</button>
+          </div>`;
+      }).join('');
+    }
+
+    // ---------- 走势图 ----------
+    function renderFundTrend() {
+      const canvas = document.getElementById('fundTrendChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      const hist = fundData.navHistory || {};
+      const dates = Object.keys(hist).sort().slice(-30);
+      const ctx = canvas.getContext('2d');
+      if (_fundChart) _fundChart.destroy();
+      if (!dates.length) {
+        _fundChart = new Chart(ctx, { type: 'line', data: { labels: ['暂无'], datasets: [{ data: [0], borderColor: '#B8E8D0' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
+        return;
+      }
+      _fundChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: '总资产',
+            data: dates.map(d => hist[d]),
+            borderColor: '#E8847A',
+            backgroundColor: 'rgba(232,132,122,0.15)',
+            fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#E8847A'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => '总资产 ' + fmtY(i.raw) } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+            y: { ticks: { font: { size: 9 }, callback: v => '¥' + v }, grid: { color: 'rgba(0,0,0,0.05)' } }
+          }
+        }
+      });
+    }
+
+    // ---------- 添加基金 ----------
+    function openAddFundModal() {
+      document.getElementById('fundNameInput').value = '';
+      document.getElementById('fundTypeInput').value = '股票型';
+      document.getElementById('fundSharesInput').value = '';
+      document.getElementById('fundCostInput').value = '';
+      document.getElementById('fundPriceInput').value = '';
+      document.getElementById('addFundModal').classList.remove('hidden');
+    }
+    function closeAddFundModal() { document.getElementById('addFundModal').classList.add('hidden'); }
+    function saveFund() {
+      const name = _val('fundNameInput');
+      const type = _val('fundTypeInput');
+      const shares = _num('fundSharesInput');
+      const cost = _num('fundCostInput');
+      const price = _num('fundPriceInput') || cost;
+      if (!name) { alert('请填写基金名称'); return; }
+      if (shares <= 0) { alert('请填写有效份额'); return; }
+      if (cost <= 0) { alert('请填写有效成本价'); return; }
+      fundData.funds.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, type, shares, costPrice: cost, currentPrice: price });
+      snapshotNav(); saveFund(); closeAddFundModal(); renderFund(); showToast('已添加基金 📈');
+    }
+
+    // ---------- 记录今日净值 ----------
+    function openNavCheckModal() {
+      const sel = document.getElementById('navFundSelect');
+      if (!fundData.funds.length) { showToast('请先添加基金'); return; }
+      sel.innerHTML = fundData.funds.map(f => `<option value="${f.id}">${escapeHtml(f.name)}（现价 ${Number(f.currentPrice) || 0}）</option>`).join('');
+      document.getElementById('navPriceInput').value = '';
+      document.getElementById('navCheckModal').classList.remove('hidden');
+    }
+    function closeNavCheckModal() { document.getElementById('navCheckModal').classList.add('hidden'); }
+    function saveNavCheck() {
+      const id = _val('navFundSelect');
+      const price = _num('navPriceInput');
+      const f = fundById(id);
+      if (!f) return;
+      if (price <= 0) { alert('请填写有效净值'); return; }
+      f.currentPrice = price;
+      snapshotNav(); saveFund(); closeNavCheckModal(); renderFund(); showToast('已记录今日净值 📝');
+    }
+
+    // ---------- 目标仓位 ----------
+    function openTargetModal() {
+      FUND_TYPES.forEach(t => { const el = document.getElementById('target_' + t); if (el) el.value = (Number(fundTarget[t]) || 0) || ''; });
+      updateTargetSumTip();
+      document.getElementById('targetModal').classList.remove('hidden');
+    }
+    function closeTargetModal() { document.getElementById('targetModal').classList.add('hidden'); }
+    function updateTargetSumTip() {
+      const sum = FUND_TYPES.reduce((s, t) => s + (_num('target_' + t) || 0), 0);
+      const tip = document.getElementById('targetSumTip');
+      if (!tip) return;
+      if (sum === 0) tip.textContent = '提示：未设置任何目标占比。';
+      else if (Math.abs(sum - 100) < 0.01) tip.textContent = `✅ 目标合计 ${sum}%，设置均衡。`;
+      else tip.textContent = `当前目标合计 ${sum}%（建议合计 100%）。`;
+    }
+    function saveTarget() {
+      FUND_TYPES.forEach(t => { const v = _num('target_' + t); if (v > 0) fundTarget[t] = v; else delete fundTarget[t]; });
+      saveFundTarget(); closeTargetModal(); renderFund(); showToast('目标仓位已保存 ⚙️');
+    }
+
+    // ---------- 交易记录 ----------
+    function setTxType(type) {
+      txType = type;
+      document.getElementById('txBuyBtn').className = 'flex-1 py-2 rounded-2xl ' + (type === 'buy' ? 'bg-macaron text-gray-700 font-semibold text-sm' : 'bg-gray-100 text-gray-600 font-semibold text-sm');
+      document.getElementById('txSellBtn').className = 'flex-1 py-2 rounded-2xl ' + (type === 'sell' ? 'bg-macaron text-gray-700 font-semibold text-sm' : 'bg-gray-100 text-gray-600 font-semibold text-sm');
+    }
+    function openTxModal() {
+      const sel = document.getElementById('txFundSelect');
+      if (!fundData.funds.length) { showToast('请先添加基金'); return; }
+      sel.innerHTML = fundData.funds.map(f => `<option value="${f.id}">${escapeHtml(f.name)}（持有 ${Number(f.shares) || 0} 份）</option>`).join('');
+      document.getElementById('txSharesInput').value = '';
+      document.getElementById('txPriceInput').value = '';
+      document.getElementById('txNoteInput').value = '';
+      setTxType('buy');
+      document.getElementById('txModal').classList.remove('hidden');
+    }
+    function closeTxModal() { document.getElementById('txModal').classList.add('hidden'); }
+    function saveTx() {
+      const id = _val('txFundSelect');
+      const shares = _num('txSharesInput');
+      const price = _num('txPriceInput');
+      const note = _val('txNoteInput');
+      const f = fundById(id);
+      if (!f) return;
+      if (shares <= 0) { alert('请填写有效份额'); return; }
+      if (price <= 0) { alert('请填写有效成交价'); return; }
+      if (txType === 'buy') {
+        const oldShares = Number(f.shares) || 0;
+        const oldCost = (Number(f.costPrice) || 0) * oldShares;
+        f.shares = oldShares + shares;
+        f.costPrice = f.shares > 0 ? ((oldCost + shares * price) / f.shares) : price;
+      } else {
+        if (shares > (Number(f.shares) || 0)) { alert('卖出份额超过持有份额'); return; }
+        f.shares = (Number(f.shares) || 0) - shares;
+      }
+      f.currentPrice = price;
+      fundRecords.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: todayKey(), fundName: f.name, type: txType, shares, price, amount: shares * price, note });
+      snapshotNav(); saveFund(); saveFundRecords(); closeTxModal(); renderFund(); showToast(txType === 'buy' ? '已记录买入 📈' : '已记录卖出 📉');
+    }
+
+    // ---------- 删除 ----------
+    function deleteFund(id) {
+      if (!confirm('确定删除该基金持仓吗？相关净值历史会保留在走势图中。')) return;
+      fundData.funds = fundData.funds.filter(f => f.id !== id);
+      saveFund(); renderFund(); showToast('已删除基金');
+    }
+    function deleteTx(id) {
+      if (!confirm('确定删除该交易记录吗？持仓份额不会自动回退。')) return;
+      fundRecords = fundRecords.filter(r => r.id !== id);
+      saveFundRecords(); renderFund(); showToast('已删除交易记录');
     }
 
     // ================= Service Worker =================
@@ -4018,6 +4589,7 @@
     // ================= 启动 =================
     function init() {
       loadData();
+      loadFundData();
       loginDayPending = true;
       afterSyncReadyDone = false;
       const cfg = getSyncCfg();
@@ -4042,6 +4614,7 @@
       renderBrain();
       renderReview();
       renderOverview();
+      renderFund();
 
       document.getElementById('moodInput').addEventListener('keypress', e => { if (e.key === 'Enter') addMood(); });
       document.getElementById('reviewInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveReview(); });
