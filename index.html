@@ -13,9 +13,6 @@
   <link rel="apple-touch-icon" href="./apple-touch-180.png">
   <title>🎮 Yoki的地球Online</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -72,6 +69,15 @@
       position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
       width: 4px; height: 24px; border-radius: 4px; background: #FF9AAE;
     }
+    .nav-status-dot {
+      position: absolute; top: 8px; right: 8px;
+      width: 10px; height: 10px; border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.85);
+      z-index: 3; transition: background 0.3s ease;
+    }
+    .nav-status-dot[data-status="done"] { background: #57C98A; }
+    .nav-status-dot[data-status="partial"] { background: #FFB454; }
+    .nav-status-dot[data-status="none"] { background: #C7CDD6; }
     .nav-drag-handle {
       cursor: grab;
       font-size: 0.85rem;
@@ -399,8 +405,59 @@
       .glass-sidebar .sidebar-overview-wrap { display: none; }
       header.glass-card { flex-direction: column; align-items: flex-start; }
     }
+    /* ============ 成就徽章 ============ */
+    .badge-chip { position: relative; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+    .badge-unlocked {
+      background: linear-gradient(135deg, #FFF3C4, #FFD9E6);
+      box-shadow: 0 0 0 2px #FFE08A, 0 4px 14px rgba(255,190,110,.5);
+      animation: badgeGlow 2.4s ease-in-out infinite;
+    }
+    .badge-locked { background: #EEF0F3; filter: grayscale(1); opacity: .55; }
+    @keyframes badgeGlow {
+      0%, 100% { box-shadow: 0 0 0 2px #FFE08A, 0 4px 14px rgba(255,190,110,.45); }
+      50% { box-shadow: 0 0 0 3px #FFD27A, 0 6px 20px rgba(255,170,80,.7); }
+    }
+    .badge-unlocked::after {
+      content: '✦'; position: absolute; top: -5px; right: -3px; font-size: 13px; color: #FFB347;
+      animation: starTwinkle 1.8s ease-in-out infinite;
+    }
+    @keyframes starTwinkle {
+      0%, 100% { opacity: .35; transform: scale(.8) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.25) rotate(22deg); }
+    }
+    .badge-flash { animation: badgeFlash .9s ease 3; }
+    @keyframes badgeFlash {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,200,120,0); }
+      50% { box-shadow: 0 0 0 7px rgba(255,195,110,.65); }
+    }
+    .badge-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 8px; border-radius: 18px; background: #fff; border: 1px solid #fff; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+    .badge-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.08); }
+    .badge-card .bname { font-size: 12px; font-weight: 700; margin-top: 6px; color: #4b5563; }
+    .badge-card .bdesc { font-size: 10px; color: #9aa1ad; margin-top: 2px; line-height: 1.3; }
+    .badge-card.locked .bname { color: #b6bcc6; }
+    .badge-card.selected { box-shadow: 0 0 0 2px #FFB347; }
+
+    /* 加载中提示（CSS 旋转动画，不依赖 JS 驱动） */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 9998;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.35); backdrop-filter: blur(2px);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .loading-overlay.show { opacity: 1; pointer-events: auto; }
+    .loading-box {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.85); padding: 18px 26px; border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12); border: 1px solid #fff;
+    }
+    .loading-spinner {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 3px solid rgba(255,154,174,0.35); border-top-color: #FF9A8B;
+      animation: spin 0.7s linear infinite;
+    }
+    .loading-text { font-size: 13px; color: #6b7280; font-weight: 600; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body class="flex">
   <!-- 左侧导航栏 -->
@@ -485,6 +542,14 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="glass-card p-5 mb-6" id="badgeHomeCard">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-cute text-xl text-gray-800">🏅 我的徽章</h3>
+          <button onclick="openBadgeModal()" class="text-xs text-gray-500 hover:text-gray-700 font-semibold">查看全部 ›</button>
+        </div>
+        <div id="badgeHomeList" class="flex gap-3 overflow-x-auto pb-1"></div>
       </div>
 
       <div class="glass-card p-5 mb-6">
@@ -1135,6 +1200,18 @@
       </div>
     </div>
 
+    <!-- 成就徽章 -->
+    <div id="badgeModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='badgeModal')closeBadgeModal()">
+      <div class="glass-card rounded-3xl p-6 w-full max-w-lg shadow-2xl border border-white max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-cute text-2xl text-gray-800">🏅 全部成就</h3>
+          <button onclick="closeBadgeModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <p class="text-xs text-gray-500 mb-4">已解锁 <span id="badgeModalCount">0</span> / 12 枚 · 点击徽章查看解锁条件</p>
+        <div id="badgeGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+      </div>
+    </div>
+
     <!-- 板块5：云朵充电站（日期切换 · 每日一解锁） -->
     <section id="section-cloud" class="section-pane">
       <div class="glass-card p-6">
@@ -1306,6 +1383,23 @@
           <button onclick="saveReview()" class="btn-bounce px-5 py-2.5 rounded-2xl bg-sky hover:bg-skyDark text-gray-700 font-bold shadow-sm">记录</button>
         </div>
         <div id="reviewList" class="space-y-3 max-h-[420px] overflow-y-auto pr-1"></div>
+        <div class="mt-4 pt-4 border-t border-white/60 flex items-center justify-between">
+          <div class="text-sm text-gray-600">🏅 已解锁 <span id="reviewBadgeCount">0</span> / 12 枚徽章</div>
+          <button onclick="openBadgeModal()" class="btn-bounce px-4 py-2 rounded-2xl bg-cream hover:bg-creamDark text-gray-700 font-semibold text-sm shadow-sm">🏅 全部成就</button>
+        </div>
+        <div class="mt-5 pt-4 border-t border-gray-200/60">
+          <div class="flex items-center justify-center gap-2 text-[12px] text-gray-400 mb-2 select-none">
+            <span class="h-px w-8 bg-gray-200"></span>
+            <span>💾 数据备份</span>
+            <span class="h-px w-8 bg-gray-200"></span>
+          </div>
+          <div class="flex items-center justify-center gap-2">
+            <button onclick="exportYokiBackup()" class="text-[12px] text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white/80 border border-white shadow-sm transition">📥 导出备份</button>
+            <label class="text-[12px] text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg bg-white/50 hover:bg-white/80 border border-white shadow-sm transition cursor-pointer">📤 导入备份
+              <input type="file" id="backupImportFile" class="hidden" accept=".json,application/json" onchange="importYokiBackup(this)">
+            </label>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1867,7 +1961,7 @@
       const raw = localStorage.getItem(DB_KEY);
       const today = todayKey();
       const base = {
-        user: { name: 'Yoki', totalLoginDays: 1 },
+        user: { name: 'Yoki', totalLoginDays: 1, vocabTotal: 0 },
         lastLoginDate: today,
         loginDates: {},
         photos: [], categories: [], moods: [], health: {}, weights: [],
@@ -2032,14 +2126,16 @@
     function initSyncClient() {
       const cfg = getSyncCfg();
       if (!cfg || !cfg.url || !cfg.key) { syncReady = false; return; }
-      try {
-        if (typeof supabase === 'undefined') { setSyncStatus('同步库未加载（请联网）', false); return; }
-        supa = supabase.createClient(cfg.url, cfg.key);
-        syncReady = true;
-        setSyncStatus('正在连接云端…');
-        subscribeSync();
-        pullFromCloud(true);
-      } catch(e) { syncReady = false; setSyncStatus('连接失败：' + e.message, false); }
+      loadSupabaseJs().then(() => {
+        try {
+          if (typeof supabase === 'undefined') { setSyncStatus('同步库未加载（请联网）', false); return; }
+          supa = supabase.createClient(cfg.url, cfg.key);
+          syncReady = true;
+          setSyncStatus('正在连接云端…');
+          subscribeSync();
+          pullFromCloud(true);
+        } catch(e) { syncReady = false; setSyncStatus('连接失败：' + e.message, false); }
+      }).catch(() => setSyncStatus('同步库加载失败（请联网）', false));
     }
     function subscribeSync() {
       if (!supa) return;
@@ -2099,13 +2195,76 @@
       if (target) target.classList.add('active');
       document.querySelector(`.nav-item[data-section="${section}"]`)?.classList.add('active');
       localStorage.setItem('yoki-active-section', section);
-      if (section === 'mood') updateMoodChart();
-      if (section === 'health') { updateWeightChart(); renderHealth(); renderMeals(); renderExercises(); renderWater(); renderSleep(); }
-      if (section === 'welcome') renderWelcome();
-      if (section === 'finance') { renderFinance(); switchFinanceTab('home'); }
-      if (section === 'cloud') initCloud();
-      if (section === 'fund') renderFund();
+      // —— 懒渲染：仅当用户点击进入该板块时才渲染内容（首页之外的板块不预渲染）——
+      if (section === 'welcome') { renderWelcome(); }
+      else if (section === 'album') { renderAlbums(); }
+      else if (section === 'mood') { renderMoods(); loadChartJs().then(updateMoodChart); }
+      else if (section === 'health') { ensurePresetExercises(); renderHealth(); renderMeals(); renderExercises(); renderWater(); renderSleep(); loadChartJs().then(updateWeightChart); }
+      else if (section === 'finance') { showLoading('加载中…'); loadChartJs().then(() => { renderFinance(); switchFinanceTab('home'); hideLoading(); }).catch(hideLoading); }
+      else if (section === 'cloud') { initCloud(); data.cloudViewedDate = todayKey(); saveData(); updateNavStatus(); }
+      else if (section === 'brain') { renderBrain(); }
+      else if (section === 'review') { renderReview(); }
+      else if (section === 'fund') { showLoading('加载中…'); loadChartJs().then(() => { renderFund(); hideLoading(); }).catch(hideLoading); }
     }
+
+    // ================= 性能优化辅助 =================
+    // 按需加载外部脚本（去阻塞首屏）
+    const _scriptCache = {};
+    function loadScript(src) {
+      if (_scriptCache[src]) return _scriptCache[src];
+      _scriptCache[src] = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src; s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('脚本加载失败: ' + src));
+        document.head.appendChild(s);
+      });
+      return _scriptCache[src];
+    }
+    function loadChartJs() { return loadScript('https://cdn.jsdelivr.net/npm/chart.js'); }
+    function loadExifr() { return loadScript('https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js'); }
+    function loadSupabaseJs() { return loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'); }
+    function loadSortableJs() { return loadScript('https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js'); }
+
+    // 加载中提示（CSS 旋转动画）
+    let _loadingEl = null;
+    function showLoading(msg) {
+      if (!_loadingEl) {
+        _loadingEl = document.createElement('div');
+        _loadingEl.id = 'loading-overlay';
+        _loadingEl.innerHTML = '<div class="loading-box"><div class="loading-spinner"></div><div class="loading-text">加载中…</div></div>';
+        document.body.appendChild(_loadingEl);
+      }
+      const t = _loadingEl.querySelector('.loading-text');
+      if (t) t.textContent = msg || '加载中…';
+      _loadingEl.classList.add('show');
+    }
+    function hideLoading() { if (_loadingEl) _loadingEl.classList.remove('show'); }
+
+    // 列表分页（每页 20 条 + 加载更多）
+    const LIST_PAGE = 20;
+    const _listPage = {};
+    function resetListPage(key) { _listPage[key] = 1; }
+    function paginateHTML(key, items, renderItem) {
+      const page = _listPage[key] || 1;
+      const end = page * LIST_PAGE;
+      const slice = items.slice(0, end);
+      let html = slice.map(renderItem).join('');
+      if (end < items.length) {
+        html += `<div class="text-center py-3"><button type="button" onclick="loadMoreList('${key}')" class="px-4 py-2 rounded-full bg-white/70 text-sm text-gray-600 shadow-sm border border-white hover:bg-white transition">加载更多 ↓</button></div>`;
+      }
+      return html;
+    }
+    function loadMoreList(key) { _listPage[key] = (_listPage[key] || 1) + 1; refreshList(key); }
+    function refreshList(key) {
+      if (key === 'album') { if (currentAlbum) showAlbum(currentAlbum); }
+      else if (key === 'mood') renderMoods();
+      else if (key === 'review') renderReview();
+      else if (key === 'vocab') renderVocab();
+      else if (key === 'cloud') renderCloudHistory();
+      else if (key === 'finance') renderFinance();
+    }
+
     const NAV_ORDER_KEY = 'yoki_nav_order';
     const DEFAULT_NAV_ORDER = ['album','mood','health','finance','cloud','brain','review','fund'];
 
@@ -2157,22 +2316,25 @@
 
     function initSortableNav() {
       const nav = document.getElementById('sidebar-nav');
-      if (typeof Sortable === 'undefined' || !nav) return;
-      Sortable.create(nav, {
-        animation: 250,
-        handle: '.nav-drag-handle',
-        delay: 200,
-        delayOnTouchOnly: true,
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        dragClass: 'sortable-drag',
-        onStart: function() { document.body.style.cursor = 'grabbing'; },
-        onEnd: function() {
-          document.body.style.cursor = '';
-          saveNavOrder();
-          showToast('导航顺序已更新 ✅');
-        }
-      });
+      if (!nav) return;
+      loadSortableJs().then(() => {
+        if (typeof Sortable === 'undefined') return;
+        Sortable.create(nav, {
+          animation: 250,
+          handle: '.nav-drag-handle',
+          delay: 200,
+          delayOnTouchOnly: true,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          dragClass: 'sortable-drag',
+          onStart: function() { document.body.style.cursor = 'grabbing'; },
+          onEnd: function() {
+            document.body.style.cursor = '';
+            saveNavOrder();
+            showToast('导航顺序已更新 ✅');
+          }
+        });
+      }).catch(() => {});
     }
 
     function initSidebar() {
@@ -2197,6 +2359,8 @@
     async function uploadPhotos(input) {
       const files = Array.from(input.files);
       if (!files.length) return;
+      showLoading('压缩图片中…');
+      try { await loadExifr(); } catch(e) {}
       for (const file of files) {
         const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
         let gps = null, city = '未知地点', exifStr = '', captureDate = '';
@@ -2222,10 +2386,11 @@
           if (data.geoCache[key]) city = data.geoCache[key];
           else { city = await reverseCity(gps[0], gps[1]); data.geoCache[key] = city; }
         }
-        const thumb = await resizeImage(file, 1024, 0.75);
+        const thumb = await compressImage(file, 150);
         data.photos.push({ id, src: thumb, city, exif: exifStr, captureDate, label: '', liked: false, category: city, date: todayKey(), uploadedAt: Date.now() });
       }
-      saveData(); renderAlbums(); renderOverview(); renderSidebarOverview();
+      saveData(); resetListPage('album'); renderAlbums(); renderOverview(); renderSidebarOverview();
+      hideLoading();
       input.value = '';
     }
     async function reverseCity(lat, lng) {
@@ -2307,7 +2472,7 @@
       const layout = document.getElementById('albumLayout').value || 'grid';
       const wrap = document.getElementById('album-photos');
       wrap.className = 'album-layout-grid ' + layout + ' max-h-[560px] overflow-y-auto p-1';
-      wrap.innerHTML = photos.map(p => {
+      wrap.innerHTML = paginateHTML('album', photos, p => {
         const liked = p.liked ? 'liked' : '';
         const heart = p.liked ? '❤️' : '🤍';
         const dateStr = p.captureDate || (p.date || '');
@@ -2351,6 +2516,7 @@
     function deletePhoto(id, cat) {
       if (!confirm('确定删除这张照片吗？')) return;
       data.photos = data.photos.filter(x => x.id !== id);
+      resetListPage('album');
       saveData(); renderAlbums(); renderOverview(); renderSidebarOverview();
       if (currentAlbum) showAlbum(currentAlbum);
     }
@@ -2493,13 +2659,13 @@
       input.value = ''; currentMoodTag = ''; pendingMoodImages = [];
       document.getElementById('moodTagHint').classList.add('hidden');
       renderMoodImagePreview();
-      saveData(); renderMoods(); updateMoodChart(); renderOverview(); renderSidebarOverview();
+      saveData(); resetListPage('mood'); renderMoods(); updateMoodChart(); renderOverview(); renderSidebarOverview();
       showToast('💭 心情已存档，你是被在意着的。', 'info');
     }
     function renderMoods() {
       const list = document.getElementById('moodList');
       if (!data.moods.length) { list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">暂无废话，来一句？</div>'; return; }
-      list.innerHTML = data.moods.slice(0, 50).map(m => `
+      list.innerHTML = paginateHTML('mood', data.moods, m => `
         <div class="bg-white/50 p-3 rounded-2xl border border-white">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs text-gray-400">${formatDate(m.date)} · ${daysAgo(m.date)}</span>
@@ -3269,13 +3435,13 @@
       if (isNaN(amt) || amt <= 0) { alert('请输入有效金额'); return; }
       const note = document.getElementById('quickAddNote').value.trim();
       data.finance.transactions.unshift({ id: 't_' + Date.now(), type: quickAddType, category: quickAddCat, amount: amt, note, date: todayKey(), ts: Date.now() });
-      saveData(); closeQuickAdd(); renderFinance(); renderOverview(); renderSidebarOverview();
+      saveData(); closeQuickAdd(); resetListPage('finance'); renderFinance(); renderOverview(); renderSidebarOverview();
       showToast(quickAddType === 'income' ? '💰 收入已记录，钱包鼓鼓的~' : '💰 记账成功，钱包的小本本记下了~', 'success');
     }
     function deleteFinanceTx(id) {
       if (!confirm('删除这笔记录？')) return;
       data.finance.transactions = data.finance.transactions.filter(t => t.id !== id);
-      saveData(); renderFinance(); renderOverview(); renderSidebarOverview();
+      saveData(); resetListPage('finance'); renderFinance(); renderOverview(); renderSidebarOverview();
     }
     function renderFinance() {
       const f = data.finance;
@@ -3318,7 +3484,7 @@
         shownTxs = shownTxs.filter(t => t.type === 'income' && (t.category.slice(2) === finBillFilter || (finBillFilter === '固定收入' && !t.category)));
       }
       if (!shownTxs.length) { list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">还没有账单，记一笔吧~</div>'; return; }
-      list.innerHTML = shownTxs.slice(0, 60).map(t => `
+      list.innerHTML = paginateHTML('finance', shownTxs, t => `
         <div class="flex items-center justify-between bg-white/50 px-3 py-2.5 rounded-xl border border-white">
           <div class="flex items-center gap-2 min-w-0">
             <span class="text-lg">${t.category.slice(0, 2)}</span>
@@ -3670,7 +3836,7 @@
       if (!box) return;
       const d = cloudDayNumber();
       const cur = cloudViewDay;
-      let html = '';
+      const items = [];
       for (let day = d; day >= 1; day--) {
         const q = cloudQuoteForDay(day);
         if (!q) break;
@@ -3678,12 +3844,12 @@
         const dtStr = `${dt.getMonth() + 1}月${dt.getDate()}日`;
         const emoji = CLOUD_CAT_EMOJI[q.cat] || '☁️';
         const active = (day === cur) ? 'ring-2 ring-sky' : '';
-        html += `<div onclick="cloudJumpTo(${day})" class="cursor-pointer bg-white/50 rounded-2xl border border-white p-3 flex items-start gap-2 ${active} hover:bg-white/70 transition">
+        items.push(`<div onclick="cloudJumpTo(${day})" class="cursor-pointer bg-white/50 rounded-2xl border border-white p-3 flex items-start gap-2 ${active} hover:bg-white/70 transition">
           <div class="text-xs text-gray-400 shrink-0 mt-0.5 whitespace-nowrap">📅 第${day}天 · ${dtStr}</div>
           <div class="flex-1 min-w-0 text-sm text-gray-700 break-words">${emoji} ${q.cat} “${escapeHtml(q.text)}”</div>
-        </div>`;
+        </div>`);
       }
-      box.innerHTML = html;
+      box.innerHTML = paginateHTML('cloud', items, x => x);
     }
     function toggleCloudPanel(which) {
       const fav = document.getElementById('cloudFavPanel');
@@ -3860,7 +4026,7 @@
             <button onclick="startVocabTest()" class="btn-bounce px-4 py-1.5 rounded-xl bg-cream hover:bg-macaron text-gray-800 font-bold text-xs shadow-sm">📝 开始测试</button>
           </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">${v.words.map(word => vocabCardHTML(word)).join('')}</div>`;
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">${paginateHTML('vocab', v.words, word => vocabCardHTML(word))}</div>`;
     }
     function startVocabTest() {
       const v = getTodayVocab();
@@ -3895,7 +4061,9 @@
       v.review = Object.values(v.results).filter(r => r === 'wrong').length;
       vocabTesting = false; vocabQ = 0;
       const b = getTodayBrain();
+      const _prevWords = b.words || 0;
       b.vocabDone = true; b.words = v.mastered;
+      data.user.vocabTotal = (data.user.vocabTotal || 0) + Math.max(0, v.mastered - _prevWords);
       saveData();
       renderBrain(); renderOverview(); renderSidebarOverview();
       checkTodayReward(false);
@@ -4146,7 +4314,7 @@
       if (!text) return;
       data.review[todayKey()] = text;
       input.value = '';
-      saveData(); renderReview(); renderOverview(); renderSidebarOverview();
+      saveData(); resetListPage('review'); renderReview(); renderOverview(); renderSidebarOverview();
       showToast('🌙 今日复盘已保存，晚安好梦~', 'success');
     }
     function editReview(date) {
@@ -4161,10 +4329,10 @@
       saveData(); renderReview();
     }
     function renderReview() {
-      const entries = Object.entries(data.review).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
+      const entries = Object.entries(data.review).sort((a,b)=>b[0].localeCompare(a[0]));
       const list = document.getElementById('reviewList');
       if (!entries.length) { list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">还没有复盘，写一句吧~</div>'; return; }
-      list.innerHTML = entries.map(([date, text]) => `
+      list.innerHTML = paginateHTML('review', entries, ([date, text]) => `
         <div class="bg-white/50 p-3 rounded-2xl border border-white">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-semibold text-gray-500">${date} · ${daysAgo(date + 'T00:00:00')}</span>
@@ -4198,8 +4366,55 @@
       document.getElementById('sidebar-overview').innerHTML = items.map(i => `
         <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs ${i.done ? 'bg-mint/80' : 'bg-white/50 text-gray-400'}" title="${i.key}">${i.label}</span>
       `).join('');
+      updateNavStatus();
+      evaluateBadges(true);
     }
     function renderSidebarOverview() { renderOverview(); }
+
+    // ================= 导航栏今日完成状态圆点 =================
+    function isToday(val) {
+      if (!val) return false;
+      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) return val === todayKey();
+      const d = new Date(val);
+      const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      return k === todayKey();
+    }
+    function getNavStatus(section) {
+      const t = todayKey();
+      switch (section) {
+        case 'album': return (data.photos || []).some(p => isToday(p.uploadedAt || p.date)) ? 'done' : 'none';
+        case 'mood': return (data.moods || []).some(m => isToday(m.date)) ? 'done' : 'none';
+        case 'health': {
+          const h = data.health[t] || {};
+          const c = ['water','meals','exercise','sleep'].filter(k => h[k]).length;
+          return c === 4 ? 'done' : (c >= 1 ? 'partial' : 'none');
+        }
+        case 'finance': return ((data.finance && data.finance.transactions) || []).some(x => x.date === t) ? 'done' : 'none';
+        case 'cloud': return (data.cloudViewedDate === t) ? 'done' : 'none';
+        case 'brain': {
+          const b = data.brain[t] || {};
+          const vocab = !!b.vocabDone, pod = (b.podcast || 0) >= 30;
+          if (vocab && pod) return 'done';
+          if (vocab || pod) return 'partial';
+          return 'none';
+        }
+        case 'review': return data.review[t] ? 'done' : 'none';
+        case 'fund': {
+          const f = (typeof fundHoldings !== 'undefined') ? fundHoldings : [];
+          if (!f.length) return 'none';
+          return f.some(h => h.navHistory && h.navHistory[t] != null) ? 'done' : 'partial';
+        }
+        default: return 'none';
+      }
+    }
+    function updateNavStatus() {
+      document.querySelectorAll('.nav-item').forEach(el => {
+        const sec = el.dataset.section;
+        let dot = el.querySelector('.nav-status-dot');
+        if (!dot) { dot = document.createElement('span'); dot.className = 'nav-status-dot'; el.insertBefore(dot, el.firstChild); }
+        dot.dataset.status = getNavStatus(sec);
+      });
+    }
 
     // ================= 欢迎光临 =================
     function tickClock() {
@@ -4320,6 +4535,7 @@
         <button onclick="showSection('${s.key}')" class="flex items-center gap-2 bg-white/60 hover:bg-white px-3 py-3 rounded-2xl border border-white shadow-sm transition">
           <span class="text-xl">${s.icon}</span><span class="text-sm font-semibold text-gray-700">${s.name}</span>
         </button>`).join('');
+      renderBadgeArea();
     }
 
     // ================= 工具函数 =================
@@ -4358,6 +4574,45 @@
       reader.readAsText(file);
       input.value = '';
     }
+    function exportYokiBackup() {
+      if (!confirm('确认导出当前所有数据？')) return;
+      const dump = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('yoki')) dump[k] = localStorage.getItem(k);
+      }
+      const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'Yoki_Backup_' + todayKey() + '.json'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('💾 备份已导出', 'info');
+    }
+    function importYokiBackup(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if (!confirm('导入将覆盖当前所有数据，确认继续？')) { return; }
+          const toRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('yoki')) toRemove.push(k);
+          }
+          toRemove.forEach(k => localStorage.removeItem(k));
+          Object.keys(imported).forEach(k => { if (k.startsWith('yoki')) localStorage.setItem(k, imported[k]); });
+          showToast('📥 备份已恢复，正在刷新…', 'info');
+          setTimeout(() => location.reload(), 500);
+        } catch (e) {
+          alert('文件格式不正确，导入失败');
+        } finally {
+          input.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function resetData() {
       document.querySelectorAll('.reset-module-check').forEach(cb => cb.checked = false);
       document.getElementById('resetModal').classList.remove('hidden');
@@ -5089,7 +5344,7 @@
       h.currentPrice = price;
       if (!h.navHistory) h.navHistory = {};
       h.navHistory[todayKey()] = price;
-      snapshotDaily(); saveFundHoldings(); closeNavCheckModal(); renderFund(); showToast('已更新今日净值 📝');
+      snapshotDaily(); saveFundHoldings(); closeNavCheckModal(); renderFund(); showToast('已更新今日净值 📝'); updateNavStatus();
     }
 
     // ---------- 编辑基金 ----------
@@ -5256,9 +5511,134 @@
       data.finance.transactions = data.finance.transactions || [];
       data.finance.transactions.unshift({ id: 't_' + Date.now(), type: 'expense', category: qaExpenseCat, amount: amt, note: '', date: todayKey(), ts: Date.now() });
       saveData(); closeQAExpense();
-      if (typeof renderFinance === 'function') renderFinance();
+      if (typeof renderFinance === 'function') { resetListPage('finance'); renderFinance(); }
       renderOverview(); renderSidebarOverview();
       showToast('💰 记账成功，钱包的小本本记下了~', 'success');
+    }
+
+    // ================= 成就徽章系统 =================
+    const BADGE_KEY = 'yoki_badges';
+    const BADGES = [
+      { id: 'rookie',   icon: '🌱', name: '初来乍到', desc: '完成任意 1 次打卡' },
+      { id: 'streak7',  icon: '🔥', name: '小有坚持', desc: '连续打卡 7 天' },
+      { id: 'streak30', icon: '⭐', name: '持之以恒', desc: '连续打卡 30 天' },
+      { id: 'streak100',icon: '👑', name: '百炼成钢', desc: '连续打卡 100 天' },
+      { id: 'vocab100', icon: '📚', name: '单词学徒', desc: '累计掌握 100 个单词' },
+      { id: 'vocab500', icon: '🎓', name: '单词大师', desc: '累计掌握 500 个单词' },
+      { id: 'health3',  icon: '💪', name: '健康新秀', desc: '连续 3 天四合一全打卡' },
+      { id: 'health7',  icon: '🏆', name: '健康王者', desc: '连续 7 天四合一全打卡' },
+      { id: 'fin10',    icon: '💰', name: '记账新手', desc: '累计记账 10 笔' },
+      { id: 'fin50',    icon: '🏦', name: '记账达人', desc: '累计记账 50 笔' },
+      { id: 'cloud10',  icon: '☁️', name: '云朵收藏家', desc: '收藏 10 条语录' },
+      { id: 'review7',  icon: '🌙', name: '复盘习惯', desc: '累计复盘 7 天' }
+    ];
+    function loadBadges() {
+      try { const r = localStorage.getItem(BADGE_KEY); if (r) { const o = JSON.parse(r); if (o && o.unlocked) return o; } } catch (e) {}
+      return { unlocked: {} };
+    }
+    function saveBadges(obj) { try { localStorage.setItem(BADGE_KEY, JSON.stringify(obj)); } catch (e) {} }
+    function keyOf(d) {
+      if (!d) return '';
+      const s = (typeof d === 'string') ? d : (d.date || d.uploadedAt || d.favDate || '');
+      return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : '';
+    }
+    function getCheckinDates() {
+      const set = new Set();
+      (data.photos || []).forEach(p => set.add(keyOf(p.uploadedAt || p.date)));
+      (data.moods || []).forEach(m => set.add(keyOf(m.date)));
+      Object.keys(data.health || {}).forEach(d => { const h = data.health[d]; if (h && (h.water || h.meals || h.exercise || h.sleep)) set.add(d); });
+      (data.finance.transactions || []).forEach(e => set.add(keyOf(e.date)));
+      Object.keys(data.brain || {}).forEach(d => { const b = data.brain[d]; if (b && (b.words || b.podcast || b.vocabDone)) set.add(d); });
+      Object.keys(data.review || {}).forEach(d => set.add(d));
+      (data.cloudLikes || []).forEach(q => set.add(keyOf(q.date || q.favDate)));
+      (data.cloudCustom || []).forEach(q => set.add(keyOf(q.date)));
+      set.delete('');
+      return set;
+    }
+    function getConsecutiveStreak(dateSet) {
+      const arr = [...dateSet].sort();
+      if (!arr.length) return 0;
+      let streak = 1;
+      for (let i = arr.length - 1; i > 0; i--) {
+        const cur = new Date(arr[i] + 'T00:00:00');
+        const prev = new Date(arr[i - 1] + 'T00:00:00');
+        const diff = Math.round((cur - prev) / 86400000);
+        if (diff === 1) streak++; else break;
+      }
+      return streak;
+    }
+    function getHealthStreak() {
+      const full = Object.keys(data.health || {}).filter(d => { const h = data.health[d]; return h && h.water && h.meals && h.exercise && h.sleep; });
+      return getConsecutiveStreak(new Set(full));
+    }
+    function getEligibleBadges() {
+      const ck = getCheckinDates();
+      const streak = getConsecutiveStreak(ck);
+      const hstreak = getHealthStreak();
+      const vocab = data.user.vocabTotal || 0;
+      const fin = (data.finance.transactions || []).length;
+      const cloud = (data.cloudLikes || []).length + (data.cloudCustom || []).length;
+      const rev = Object.keys(data.review || {}).length;
+      const map = {
+        rookie: ck.size >= 1, streak7: streak >= 7, streak30: streak >= 30, streak100: streak >= 100,
+        vocab100: vocab >= 100, vocab500: vocab >= 500,
+        health3: hstreak >= 3, health7: hstreak >= 7,
+        fin10: fin >= 10, fin50: fin >= 50,
+        cloud10: cloud >= 10, review7: rev >= 7
+      };
+      return BADGES.filter(b => map[b.id]);
+    }
+    function evaluateBadges(celebrate) {
+      const stored = loadBadges();
+      const eligible = getEligibleBadges();
+      const newly = [];
+      eligible.forEach(b => { if (!stored.unlocked[b.id]) { stored.unlocked[b.id] = Date.now(); newly.push(b); } });
+      if (newly.length) saveBadges(stored);
+      if (celebrate && newly.length) {
+        newly.forEach((b, i) => setTimeout(() => showToast(`🎉 恭喜解锁徽章：${b.name}！`, 'success'), i * 420));
+        const card = document.getElementById('badgeHomeCard');
+        if (card) { card.classList.remove('badge-flash'); void card.offsetWidth; card.classList.add('badge-flash'); }
+      }
+      renderBadgeArea();
+      return stored;
+    }
+    function renderBadgeArea() {
+      const stored = loadBadges();
+      const list = document.getElementById('badgeHomeList');
+      const unlocked = BADGES.filter(b => stored.unlocked[b.id]);
+      const cnt = Object.keys(stored.unlocked).length;
+      const rc = document.getElementById('reviewBadgeCount'); if (rc) rc.textContent = cnt;
+      const mc = document.getElementById('badgeModalCount'); if (mc) mc.textContent = cnt;
+      if (!list) return;
+      if (!unlocked.length) {
+        list.innerHTML = '<div class="text-sm text-gray-400 py-2">🏅 完成你的第一次打卡，解锁专属徽章吧！</div>';
+      } else {
+        list.innerHTML = unlocked.map(b => `<div class="badge-chip badge-unlocked" title="${b.name}">${b.icon}</div>`).join('')
+          + `<button onclick="openBadgeModal()" class="ml-1 self-center text-xs text-gray-400 hover:text-gray-600 font-semibold whitespace-nowrap">+${BADGES.length - unlocked.length} 待解锁 ›</button>`;
+      }
+    }
+    function openBadgeModal() {
+      const stored = loadBadges();
+      const grid = document.getElementById('badgeGrid');
+      const cnt = Object.keys(stored.unlocked).length;
+      const mc = document.getElementById('badgeModalCount'); if (mc) mc.textContent = cnt;
+      const rc = document.getElementById('reviewBadgeCount'); if (rc) rc.textContent = cnt;
+      if (grid) grid.innerHTML = BADGES.map(b => {
+        const got = !!stored.unlocked[b.id];
+        return `<div class="badge-card ${got ? '' : 'locked'}" onclick="showBadgeDetail('${b.id}')">
+          <div class="badge-chip ${got ? 'badge-unlocked' : 'badge-locked'}">${got ? b.icon : '🔒'}</div>
+          <div class="bname">${b.name}</div>
+          <div class="bdesc">${b.desc}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('badgeModal').classList.remove('hidden');
+    }
+    function closeBadgeModal() { const m = document.getElementById('badgeModal'); if (m) m.classList.add('hidden'); }
+    function showBadgeDetail(id) {
+      const b = BADGES.find(x => x.id === id); if (!b) return;
+      const stored = loadBadges();
+      const got = !!stored.unlocked[id];
+      showToast(got ? `✅ ${b.icon} ${b.name}：已解锁！` : `🔒 ${b.icon} ${b.name}：${b.desc}`, 'info');
     }
 
     function init() {
@@ -5274,21 +5654,11 @@
         setTimeout(afterSyncReady, 5000);
       }
       initHeader();
-      initSidebar();
-      renderAlbums();
-      renderMoods();
-      renderHealth();
-      ensurePresetExercises();
-      renderMeals();
-      renderExercises();
-      renderWater();
-      renderSleep();
-      renderFinance();
-      initCloud();
-      renderBrain();
-      renderReview();
+      initSidebar();   // 内部 showSection(saved) 会懒渲染对应板块（默认首页仅渲染欢迎内容）
+      evaluateBadges(false);
       renderOverview();
-      renderFund();
+      updateNavStatus();
+      loadSortableJs().then(() => initSortableNav()).catch(() => {});
 
       document.getElementById('moodInput').addEventListener('keypress', e => { if (e.key === 'Enter') addMood(); });
       document.getElementById('reviewInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveReview(); });
