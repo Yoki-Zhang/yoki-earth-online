@@ -1030,26 +1030,30 @@
           </div>
           <div id="finBalance" class="text-4xl font-bold mb-3">¥0.00</div>
           <button onclick="openBudgetModal()" class="w-full mb-3 text-xs bg-white/20 hover:bg-white/30 px-3 py-2 rounded-full transition font-semibold">📝 设置预算</button>
-          <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+          <div class="grid grid-cols-2 gap-2 text-xs mb-2">
             <div class="bg-white/10 rounded-xl px-3 py-2">
               <div class="opacity-70">本月预算</div>
               <div id="finBudgetNow" class="font-bold text-base">¥0.00</div>
             </div>
             <div class="bg-white/10 rounded-xl px-3 py-2">
-              <div class="opacity-70">本月已用</div>
-              <div id="finUsedNow" class="font-bold text-base">¥0.00</div>
+              <div class="opacity-70">本月收入</div>
+              <div id="finIncomeNow" class="font-bold text-base">¥0.00</div>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3 py-2">
+              <div class="opacity-70">本月支出</div>
+              <div id="finExpenseNow" class="font-bold text-base">¥0.00</div>
             </div>
             <div class="bg-white/10 rounded-xl px-3 py-2">
               <div class="opacity-70">本月剩余</div>
               <div id="finRemainNow" class="font-bold text-base">¥0.00</div>
             </div>
-            <div class="bg-white/10 rounded-xl px-3 py-2">
-              <div class="opacity-70">剩余天数</div>
-              <div class="font-bold text-base"><span id="finDaysLeft">0</span> 天</div>
-            </div>
           </div>
-          <div class="mb-1 flex justify-between text-xs opacity-80">
+          <div class="mb-2 flex justify-between text-xs opacity-80">
+            <span>剩余天数 <span id="finDaysLeft" class="font-bold">0</span> 天</span>
             <span>日均可用 <span id="finDailyAvg" class="font-bold">¥0.00</span></span>
+          </div>
+          <div id="finBudgetMsg" class="text-xs font-semibold mb-2"></div>
+          <div class="mb-1 flex justify-between text-xs opacity-80">
             <span id="finBudgetPct">0%</span>
           </div>
           <div class="budget-bar">
@@ -3539,18 +3543,23 @@
       const now = new Date();
       const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const daysLeft = Math.max(1, daysInMonth - now.getDate() + 1);
-      const remain = budget - exp;
+      const remain = budget + inc - exp;
       const dailyAvg = remain > 0 ? remain / daysLeft : 0;
-      document.getElementById('finBalance').textContent = '¥' + balance.toFixed(2);
+      const negative = remain < 0;
+      document.getElementById('finBalance').textContent = '¥' + remain.toFixed(2);
       document.getElementById('finBudgetNow').textContent = '¥' + budget.toFixed(2);
-      document.getElementById('finUsedNow').textContent = '¥' + exp.toFixed(2);
+      document.getElementById('finIncomeNow').textContent = '¥' + inc.toFixed(2);
+      document.getElementById('finExpenseNow').textContent = '¥' + exp.toFixed(2);
       const remainEl = document.getElementById('finRemainNow');
       remainEl.textContent = '¥' + remain.toFixed(2);
-      remainEl.style.color = remain < 0 ? '#FF6B81' : '';
+      remainEl.style.color = negative ? '#FF6B81' : '#7EE0A8';
       document.getElementById('finDaysLeft').textContent = daysLeft;
       const dailyEl = document.getElementById('finDailyAvg');
       dailyEl.textContent = '¥' + dailyAvg.toFixed(2);
-      dailyEl.style.color = remain < 0 ? '#FF6B81' : '';
+      dailyEl.style.color = negative ? '#FF6B81' : '#7EE0A8';
+      const msgEl = document.getElementById('finBudgetMsg');
+      msgEl.textContent = negative ? '⚠️ 支出已超预算，建议控制消费。' : '✅ 预算充足，继续加油！';
+      msgEl.style.color = negative ? '#FF6B81' : '#7EE0A8';
       document.getElementById('finBudgetPct').textContent = usedPct.toFixed(0) + '%';
       const bar = document.getElementById('finBudgetBar');
       bar.style.width = usedPct + '%';
