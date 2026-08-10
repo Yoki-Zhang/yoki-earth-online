@@ -1028,20 +1028,37 @@
             <div class="text-sm opacity-80">小猪存钱罐余额</div>
             <button onclick="switchFinanceTab('mine')" class="text-xs bg-white/15 hover:bg-white/25 px-3 py-1 rounded-full transition">⚙️ 设置</button>
           </div>
-          <div id="finBalance" class="text-4xl font-bold mb-4">¥0.00</div>
-          <div class="mb-2">
-            <div class="flex justify-between text-xs opacity-80 mb-1">
-              <span>本月预算 <span id="finBudgetLabel">¥0</span></span>
-              <span id="finBudgetPct">0%</span>
+          <div id="finBalance" class="text-4xl font-bold mb-3">¥0.00</div>
+          <button onclick="openBudgetModal()" class="w-full mb-3 text-xs bg-white/20 hover:bg-white/30 px-3 py-2 rounded-full transition font-semibold">📝 设置预算</button>
+          <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+            <div class="bg-white/10 rounded-xl px-3 py-2">
+              <div class="opacity-70">本月预算</div>
+              <div id="finBudgetNow" class="font-bold text-base">¥0.00</div>
             </div>
-            <div class="budget-bar">
-              <div id="finBudgetBar" class="budget-bar-inner" style="width:0%;background:#7EE0A8"></div>
+            <div class="bg-white/10 rounded-xl px-3 py-2">
+              <div class="opacity-70">本月已用</div>
+              <div id="finUsedNow" class="font-bold text-base">¥0.00</div>
             </div>
+            <div class="bg-white/10 rounded-xl px-3 py-2">
+              <div class="opacity-70">本月剩余</div>
+              <div id="finRemainNow" class="font-bold text-base">¥0.00</div>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3 py-2">
+              <div class="opacity-70">剩余天数</div>
+              <div class="font-bold text-base"><span id="finDaysLeft">0</span> 天</div>
+            </div>
+          </div>
+          <div class="mb-1 flex justify-between text-xs opacity-80">
+            <span>日均可用 <span id="finDailyAvg" class="font-bold">¥0.00</span></span>
+            <span id="finBudgetPct">0%</span>
+          </div>
+          <div class="budget-bar">
+            <div id="finBudgetBar" class="budget-bar-inner" style="width:0%;background:#7EE0A8"></div>
           </div>
           <div class="grid grid-cols-3 gap-3 mt-4 text-center">
             <div><div class="text-xs opacity-70">收入</div><div id="finIncome" class="font-bold">¥0</div></div>
             <div><div class="text-xs opacity-70">支出</div><div id="finExpense" class="font-bold">¥0</div></div>
-            <div><div class="text-xs opacity-70">可用天数</div><div id="finDays" class="font-bold">0天</div></div>
+            <div><div class="text-xs opacity-70">笔数</div><div id="finTxCount" class="font-bold">0</div></div>
           </div>
         </div>
 
@@ -1093,7 +1110,7 @@
           </div>
           <div class="glass-card p-5">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="font-cute text-lg">📒 本月账单</h3>
+              <h3 class="font-cute text-lg">📒 全部账单</h3>
               <div id="finBillFilterChip" class="hidden flex items-center gap-1 px-2 py-1 rounded-full bg-macaron/40 text-xs">
                 <span id="finBillFilterLabel"></span>
                 <button onclick="clearFinBillFilter()" class="text-gray-500 hover:text-red-500">&times;</button>
@@ -1150,6 +1167,23 @@
         <input type="number" id="quickAddAmount" placeholder="金额" class="w-full px-4 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark mb-3">
         <input type="text" id="quickAddNote" placeholder="备注（可选）" class="w-full px-4 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark mb-4">
         <button onclick="confirmQuickAdd()" class="w-full py-3 rounded-2xl bg-macaron hover:bg-macaronDark text-white font-bold btn-bounce">保存</button>
+      </div>
+    </div>
+
+    <!-- 设置月度预算弹窗 -->
+    <div id="budgetModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target.id==='budgetModal')closeBudgetModal()">
+      <div class="bg-white rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md shadow-2xl border border-white">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-cute text-lg">📝 设置月度预算</h3>
+          <button onclick="closeBudgetModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <p class="text-xs text-gray-500 mb-3">为 <span id="budgetModalMonth" class="font-semibold text-gray-700"></span> 设置月度预算，按月独立保存，跨月自动切换。</p>
+        <label class="text-xs text-gray-500">当月总预算（元）</label>
+        <input type="number" id="budgetModalInput" placeholder="如 3000" class="w-full mt-1 px-4 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-macaronDark mb-4">
+        <div class="flex gap-2">
+          <button onclick="closeBudgetModal()" class="flex-1 px-3 py-2.5 rounded-2xl bg-white/70 hover:bg-white text-sm font-semibold border border-white">取消</button>
+          <button onclick="saveBudgetFromModal()" class="flex-1 px-3 py-2.5 rounded-2xl bg-macaron hover:bg-macaronDark text-white text-sm font-bold">保存</button>
+        </div>
       </div>
     </div>
 
@@ -1989,7 +2023,11 @@
           if (!data.health[today]) data.health[today] = { water:false, meals:false, exercise:false, sleep:false };
           if (!data.brain[today]) data.brain[today] = { words:0, podcast:0, rewarded:false };
           if (!data.cloud[today]) data.cloud[today] = { state:null, quote:null };
-          if (data.finance.month !== today.slice(0,7)) data.finance = { month: today.slice(0,7), budget: 0, income: 0, transactions: [] };
+          if (data.finance.month !== today.slice(0,7)) {
+            // 跨月不再清空交易记录：历史账单按月持久保留；预算改用独立的 yoki_budget_YYYY-MM 存储
+            data.finance.month = today.slice(0,7);
+            if (!data.finance.transactions) data.finance.transactions = [];
+          }
           if (data.finance.expenses && !data.finance.transactions) {
             data.finance.transactions = data.finance.expenses.map(e => ({ id: e.id || 't_' + Date.now() + Math.random().toString(36).slice(2,6), type: 'expense', category: e.category, amount: e.amount, note: '', date: e.date }));
             delete data.finance.expenses;
@@ -2494,7 +2532,7 @@
               <button onclick="event.stopPropagation(); deletePhoto('${p.id}', '${cat.replace(/'/g, "\\'")}')" title="删除">🗑️</button>
             </div>
           </div>`;
-      }).join('') || '<div class="text-center text-gray-400 py-8 col-span-full">这个相册还没有照片</div>';
+      }) || '<div class="text-center text-gray-400 py-8 col-span-full">这个相册还没有照片</div>';
       const header = document.getElementById('album-detail-header-actions');
       if (header) header.classList.remove('hidden');
     }
@@ -2673,7 +2711,7 @@
           </div>
           ${m.text ? `<p class="text-gray-700 text-sm mb-1">${escapeHtml(m.text)}</p>` : ''}
           ${(m.images && m.images.length) ? `<div class="flex flex-wrap gap-2 mt-1">${m.images.map(src => `<img src="${src}" class="mood-img-thumb" onclick="openImgModal('${src}')">`).join('')}</div>` : ''}
-        </div>`).join('');
+        </div>`);
     }
     function updateMoodChart() {
       const since = Date.now() - 30*86400000;
@@ -3406,7 +3444,8 @@
       if (tab === 'mine') renderSyncSettings();
     }
     function saveFinanceSettings() {
-      data.finance.budget = parseFloat(document.getElementById('budgetInput').value) || 0;
+      const m = curFinMonth();
+      setBudget(m, parseFloat(document.getElementById('budgetInput').value) || 0);
       data.finance.income = parseFloat(document.getElementById('incomeInput').value) || 0;
       saveData(); renderFinance();
     }
@@ -3443,30 +3482,82 @@
       data.finance.transactions = data.finance.transactions.filter(t => t.id !== id);
       saveData(); resetListPage('finance'); renderFinance(); renderOverview(); renderSidebarOverview();
     }
+    // ---- 月度预算（按 yoki_budget_YYYY-MM 独立存储）----
+    function curFinMonth() { return data.finance.month || todayKey().slice(0,7); }
+    function getBudget(month) {
+      const v = parseFloat(localStorage.getItem('yoki_budget_' + month));
+      return isNaN(v) ? 0 : v;
+    }
+    function setBudget(month, val) {
+      try { localStorage.setItem('yoki_budget_' + month, String(val)); } catch(e) {}
+    }
+    function openBudgetModal() {
+      const m = curFinMonth();
+      const inp = document.getElementById('budgetModalInput');
+      document.getElementById('budgetModalMonth').textContent = m;
+      inp.value = getBudget(m) || '';
+      document.getElementById('budgetModal').classList.remove('hidden');
+      setTimeout(() => inp.focus(), 120);
+    }
+    function closeBudgetModal() { document.getElementById('budgetModal').classList.add('hidden'); }
+    function saveBudgetFromModal() {
+      const m = curFinMonth();
+      const val = parseFloat(document.getElementById('budgetModalInput').value) || 0;
+      setBudget(m, val);
+      closeBudgetModal(); renderFinance();
+      showToast('📝 ' + m + ' 预算已设为 ¥' + val.toFixed(2), 'success');
+    }
+    // ---- 编辑交易 ----
+    let editingTxId = null;
+    function startEditTx(id) { editingTxId = id; renderFinance(); }
+    function cancelEditTx() { editingTxId = null; renderFinance(); }
+    function saveEditTx(id) {
+      const tx = (data.finance.transactions || []).find(t => t.id === id);
+      if (!tx) return;
+      const cat = document.getElementById('editTxCat_' + id).value;
+      const amt = parseFloat(document.getElementById('editTxAmt_' + id).value);
+      const date = document.getElementById('editTxDate_' + id).value;
+      const note = document.getElementById('editTxNote_' + id).value.trim();
+      if (isNaN(amt) || amt <= 0) { alert('请输入有效金额'); return; }
+      if (!date) { alert('请选择日期'); return; }
+      tx.category = cat; tx.amount = amt; tx.date = date; tx.note = note; tx.ts = tx.ts || Date.now();
+      saveData(); editingTxId = null; resetListPage('finance'); renderFinance(); renderOverview(); renderSidebarOverview();
+      showToast('✏️ 修改已保存', 'success');
+    }
     function renderFinance() {
       const f = data.finance;
-      document.getElementById('budgetInput').value = f.budget || '';
+      const curMonth = curFinMonth();
+      document.getElementById('budgetInput').value = getBudget(curMonth) || '';
       document.getElementById('incomeInput').value = f.income || '';
       const txs = f.transactions || [];
-      const month = f.month;
-      const monthTx = txs.filter(t => t.date && t.date.slice(0, 7) === month);
+      const monthTx = txs.filter(t => t.date && t.date.slice(0, 7) === curMonth);
       const exp = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
       const inc = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0) + (f.income || 0);
-      const balance = (f.budget || 0) + inc - exp;
-      const budgetTotal = (f.budget || 0);
-      const usedPct = budgetTotal > 0 ? Math.min(100, exp / budgetTotal * 100) : 0;
+      const budget = getBudget(curMonth);
+      const balance = budget + inc - exp;
+      const usedPct = budget > 0 ? Math.min(100, exp / budget * 100) : 0;
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const daysLeft = Math.max(1, daysInMonth - now.getDate() + 1);
+      const remain = budget - exp;
+      const dailyAvg = remain > 0 ? remain / daysLeft : 0;
       document.getElementById('finBalance').textContent = '¥' + balance.toFixed(2);
-      document.getElementById('finBudgetLabel').textContent = '¥' + budgetTotal.toFixed(0);
+      document.getElementById('finBudgetNow').textContent = '¥' + budget.toFixed(2);
+      document.getElementById('finUsedNow').textContent = '¥' + exp.toFixed(2);
+      const remainEl = document.getElementById('finRemainNow');
+      remainEl.textContent = '¥' + remain.toFixed(2);
+      remainEl.style.color = remain < 0 ? '#FF6B81' : '';
+      document.getElementById('finDaysLeft').textContent = daysLeft;
+      const dailyEl = document.getElementById('finDailyAvg');
+      dailyEl.textContent = '¥' + dailyAvg.toFixed(2);
+      dailyEl.style.color = remain < 0 ? '#FF6B81' : '';
       document.getElementById('finBudgetPct').textContent = usedPct.toFixed(0) + '%';
       const bar = document.getElementById('finBudgetBar');
       bar.style.width = usedPct + '%';
       bar.style.background = usedPct < 60 ? '#7EE0A8' : usedPct < 90 ? '#FFD166' : '#FF6B81';
       document.getElementById('finIncome').textContent = '¥' + inc.toFixed(0);
       document.getElementById('finExpense').textContent = '¥' + exp.toFixed(0);
-      const now = new Date();
-      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      const daysLeft = Math.max(1, daysInMonth - now.getDate());
-      document.getElementById('finDays').textContent = daysLeft + '天';
+      document.getElementById('finTxCount').textContent = txs.length;
       document.getElementById('finCount').textContent = txs.length;
       document.getElementById('finCategoryShortcuts').innerHTML = FIN_CATS.expense.map(c => `
         <button onclick="quickFromCat('${c.key}')" class="category-icon flex flex-col items-center gap-1 bg-white/60 rounded-2xl py-3 border border-white">
@@ -3479,25 +3570,46 @@
       if (chip) chip.classList.toggle('hidden', !finBillFilter);
       if (chipLabel && finBillFilter) chipLabel.textContent = '收入：' + finBillFilter;
       const list = document.getElementById('finBillList');
-      let shownTxs = txs.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      let shownTxs = txs.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.ts || 0) - (a.ts || 0));
       if (finBillFilter) {
         shownTxs = shownTxs.filter(t => t.type === 'income' && (t.category.slice(2) === finBillFilter || (finBillFilter === '固定收入' && !t.category)));
       }
       if (!shownTxs.length) { list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">还没有账单，记一笔吧~</div>'; return; }
-      list.innerHTML = paginateHTML('finance', shownTxs, t => `
-        <div class="flex items-center justify-between bg-white/50 px-3 py-2.5 rounded-xl border border-white">
+      list.innerHTML = paginateHTML('finance', shownTxs, t => {
+        if (editingTxId === t.id) {
+          const cats = (FIN_CATS[t.type] || FIN_CATS.expense) || [];
+          const opts = cats.map(c => `<option value="${c.key}" ${c.key === t.category ? 'selected' : ''}>${c.icon} ${c.name}</option>`).join('');
+          const noteEsc = (t.note || '').replace(/"/g, '&quot;');
+          return `<div class="bg-white/70 px-3 py-3 rounded-xl border border-macaron/50 space-y-2">
+            <div class="flex items-center gap-2">
+              <select id="editTxCat_${t.id}" class="flex-1 px-2 py-1.5 rounded-lg border border-white bg-white/70 text-sm focus:outline-none">${opts}</select>
+              <input id="editTxAmt_${t.id}" type="number" step="0.01" value="${t.amount}" class="w-28 px-2 py-1.5 rounded-lg border border-white bg-white/70 text-sm focus:outline-none">
+            </div>
+            <div class="flex items-center gap-2">
+              <input id="editTxDate_${t.id}" type="date" value="${t.date}" class="flex-1 px-2 py-1.5 rounded-lg border border-white bg-white/70 text-sm focus:outline-none">
+              <input id="editTxNote_${t.id}" value="${noteEsc}" placeholder="备注" class="flex-1 px-2 py-1.5 rounded-lg border border-white bg-white/70 text-sm focus:outline-none">
+            </div>
+            <div class="flex items-center gap-2 justify-end">
+              <button onclick="saveEditTx('${t.id}')" class="px-3 py-1.5 rounded-lg bg-macaron hover:bg-macaronDark text-xs font-semibold">💾 保存</button>
+              <button onclick="cancelEditTx()" class="px-3 py-1.5 rounded-lg bg-white/70 hover:bg-white text-xs font-semibold border border-white">❌ 取消</button>
+            </div>
+          </div>`;
+        }
+        return `<div class="flex items-center justify-between bg-white/50 px-3 py-2.5 rounded-xl border border-white">
           <div class="flex items-center gap-2 min-w-0">
             <span class="text-lg">${t.category.slice(0, 2)}</span>
             <div class="min-w-0">
               <div class="text-sm font-semibold truncate">${t.category.slice(2)}</div>
-              <div class="text-xs text-gray-400 truncate">${(t.note || '') + ' ' + (t.date || '').slice(5)}</div>
+              <div class="text-xs text-gray-400 truncate">${(t.note || '')} ${(t.date || '').slice(5)}</div>
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
             <span class="font-semibold ${t.type === 'income' ? 'text-green-600' : 'text-gray-700'}">${t.type === 'income' ? '+' : '-'}¥${t.amount.toFixed(2)}</span>
-            <button onclick="deleteFinanceTx('${t.id}')" class="text-gray-400 hover:text-red-400">&times;</button>
+            <button onclick="startEditTx('${t.id}')" class="text-gray-400 hover:text-blue-400 text-base leading-none" title="编辑">✏️</button>
+            <button onclick="deleteFinanceTx('${t.id}')" class="text-gray-400 hover:text-red-400 text-base leading-none" title="删除">&times;</button>
           </div>
-        </div>`).join('');
+        </div>`;
+      });
     }
     // ---- 首页收支柱状图 ----
     let finChartFilter = 'month';
@@ -4342,7 +4454,7 @@
             </div>
           </div>
           <p class="text-gray-700 text-sm">${escapeHtml(text)}</p>
-        </div>`).join('');
+        </div>`);
     }
 
     // ================= 总览 =================
