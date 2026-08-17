@@ -437,26 +437,6 @@
     .badge-card.locked .bname { color: #b6bcc6; }
     .badge-card.selected { box-shadow: 0 0 0 2px #FFB347; }
 
-    /* 加载中提示（CSS 旋转动画，不依赖 JS 驱动） */
-    .loading-overlay {
-      position: fixed; inset: 0; z-index: 9998;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.35); backdrop-filter: blur(2px);
-      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-    }
-    .loading-overlay.show { opacity: 1; pointer-events: auto; }
-    .loading-box {
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      background: rgba(255,255,255,0.85); padding: 18px 26px; border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12); border: 1px solid #fff;
-    }
-    .loading-spinner {
-      width: 30px; height: 30px; border-radius: 50%;
-      border: 3px solid rgba(255,154,174,0.35); border-top-color: #FF9A8B;
-      animation: spin 0.7s linear infinite;
-    }
-    .loading-text { font-size: 13px; color: #6b7280; font-weight: 600; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="flex">
@@ -2010,6 +1990,7 @@
         vocabLang: 'en', vocabCursorEn: 0, vocabCursorFr: 0, vocabStats: {}, vocabDaily: {},
         settings: {}
       };
+      let loadedOK = false;
       if (raw) {
         try {
           data = Object.assign({}, base, JSON.parse(raw));
@@ -2057,9 +2038,11 @@
           if (data.vocabCursorFr === undefined) data.vocabCursorFr = 0;
           vocabLang = data.vocabLang || 'en';
           if (!data.settings) data.settings = {};
+          loadedOK = true;
           // 若旧 health 中 meals/exercise 已打卡但无明细，保留打卡状态
-        } catch(e) { data = base; }
+        } catch(e) { data = base; loadedOK = false; }
       } else {
+        loadedOK = true;
         data = base;
         data.health[today] = { water:false, meals:false, exercise:false, sleep:false };
         data.brain[today] = { words:0, podcast:0, rewarded:false, vocabDone:false };
@@ -2067,7 +2050,7 @@
         data.meals[today] = { breakfast: null, lunch: null, dinner: null };
         data.exerciseLog[today] = [];
       }
-      saveData();
+      if (loadedOK) saveData();
     }
     let loginDayPending = true;
     function incrementLoginDay() {
@@ -2139,15 +2122,56 @@
       delete clone.geoCache; delete clone.__localDirty;
       return clone;
     }
+    // 按 id 合并两个数组：本地优先，云端仅补充本地没有的记录（绝不删除本地历史）
+    function unionById(localArr, remoteArr, idKey) {
+      const la = Array.isArray(localArr) ? localArr.slice() : [];
+      const ra = Array.isArray(remoteArr) ? remoteArr.slice() : [];
+      const seen = new Set();
+      const out = [];
+      la.forEach(x => { const k = x && x[idKey]; if (k != null) { if (seen.has(k)) return; seen.add(k); } out.push(x); });
+      ra.forEach(x => { const k = x && x[idKey]; if (k != null) { if (seen.has(k)) return; seen.add(k); } out.push(x); });
+      return out;
+    }
     function applyRemotePayload(remote) {
-      const localPhotos = data.photos || [];
-      const localLoginDates = data.loginDates || {};
-      data = remote || {};
-      data.photos = localPhotos;
-      data.loginDates = { ...(data.loginDates || {}), ...localLoginDates };
+      if (!remote) return;
+      const local = data;
+      const localPhotos = local.photos || [];
+      const localLoginDates = local.loginDates || {};
+      const rfin = remote.finance || {};
+      const lfin = local.finance || {};
+      const merged = {
+        ...remote,
+        photos: localPhotos, // 照片不跨设备，始终保留本地
+        loginDates: { ...(remote.loginDates || {}), ...localLoginDates },
+        finance: {
+          month: rfin.month || lfin.month || todayKey().slice(0, 7),
+          budget: rfin.budget || lfin.budget || 0,
+          income: rfin.income || lfin.income || 0,
+          transactions: unionById(lfin.transactions, rfin.transactions, 'id')
+        },
+        moods: unionById(local.moods, remote.moods, 'id'),
+        meals: { ...(local.meals || {}), ...(remote.meals || {}) },
+        exercises: unionById(local.exercises, remote.exercises, 'id'),
+        weights: unionById(local.weights, remote.weights, 'id'),
+        water: { ...(local.water || {}), ...(remote.water || {}) },
+        sleep: { ...(local.sleep || {}), ...(remote.sleep || {}) },
+        review: { ...(local.review || {}), ...(remote.review || {}) },
+        cloud: { ...(local.cloud || {}), ...(remote.cloud || {}) },
+        cloudLikes: Array.from(new Set([...(local.cloudLikes || []), ...(remote.cloudLikes || [])])),
+        cloudCustom: unionById(local.cloudCustom, remote.cloudCustom, 'id'),
+        brain: { ...(local.brain || {}), ...(remote.brain || {}) },
+        rewardHistory: unionById(local.rewardHistory, remote.rewardHistory, 'id'),
+        vocabDaily: { ...(local.vocabDaily || {}), ...(remote.vocabDaily || {}) },
+        vocabStats: { ...(local.vocabStats || {}), ...(remote.vocabStats || {}) },
+        settings: { ...(local.settings || {}), ...(remote.settings || {}) },
+        user: remote.user || local.user || { name: 'Yoki', totalLoginDays: 1 }
+      };
+      data = merged;
       if (!data.user) data.user = { name: 'Yoki', totalLoginDays: 1 };
       if (!data.finance) data.finance = { month: todayKey().slice(0,7), budget: 0, income: 0, transactions: [] };
       if (!data.settings) data.settings = {};
+      if (!data.photos) data.photos = [];
+      if (!data.loginDates) data.loginDates = {};
       saveDataLocalOnly();
       renderAll();
     }
@@ -2242,11 +2266,11 @@
       else if (section === 'album') { renderAlbums(); }
       else if (section === 'mood') { renderMoods(); loadChartJs().then(updateMoodChart); }
       else if (section === 'health') { ensurePresetExercises(); renderHealth(); renderMeals(); renderExercises(); renderWater(); renderSleep(); loadChartJs().then(updateWeightChart); }
-      else if (section === 'finance') { showLoading('加载中…'); loadChartJs().then(() => { renderFinance(); switchFinanceTab('home'); hideLoading(); }).catch(hideLoading); }
+      else if (section === 'finance') { loadChartJs().then(() => { renderFinance(); switchFinanceTab('home'); }); }
       else if (section === 'cloud') { initCloud(); data.cloudViewedDate = todayKey(); saveData(); updateNavStatus(); }
       else if (section === 'brain') { renderBrain(); }
       else if (section === 'review') { renderReview(); }
-      else if (section === 'fund') { showLoading('加载中…'); loadChartJs().then(() => { renderFund(); hideLoading(); }).catch(hideLoading); }
+      else if (section === 'fund') { loadChartJs().then(() => { renderFund(); }); }
     }
 
     // ================= 性能优化辅助 =================
@@ -2267,21 +2291,6 @@
     function loadExifr() { return loadScript('https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js'); }
     function loadSupabaseJs() { return loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'); }
     function loadSortableJs() { return loadScript('https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js'); }
-
-    // 加载中提示（CSS 旋转动画）
-    let _loadingEl = null;
-    function showLoading(msg) {
-      if (!_loadingEl) {
-        _loadingEl = document.createElement('div');
-        _loadingEl.id = 'loading-overlay';
-        _loadingEl.innerHTML = '<div class="loading-box"><div class="loading-spinner"></div><div class="loading-text">加载中…</div></div>';
-        document.body.appendChild(_loadingEl);
-      }
-      const t = _loadingEl.querySelector('.loading-text');
-      if (t) t.textContent = msg || '加载中…';
-      _loadingEl.classList.add('show');
-    }
-    function hideLoading() { if (_loadingEl) _loadingEl.classList.remove('show'); }
 
     // 列表分页（每页 20 条 + 加载更多）
     const LIST_PAGE = 20;
@@ -2401,7 +2410,6 @@
     async function uploadPhotos(input) {
       const files = Array.from(input.files);
       if (!files.length) return;
-      showLoading('压缩图片中…');
       try { await loadExifr(); } catch(e) {}
       for (const file of files) {
         const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
@@ -2432,7 +2440,6 @@
         data.photos.push({ id, src: thumb, city, exif: exifStr, captureDate, label: '', liked: false, category: city, date: todayKey(), uploadedAt: Date.now() });
       }
       saveData(); resetListPage('album'); renderAlbums(); renderOverview(); renderSidebarOverview();
-      hideLoading();
       input.value = '';
     }
     async function reverseCity(lat, lng) {
